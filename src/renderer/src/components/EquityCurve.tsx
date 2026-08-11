@@ -7,7 +7,7 @@ interface EquityCurveProps {
 }
 
 export function EquityCurve({ startingBalance, trades }: EquityCurveProps): JSX.Element {
-  const sorted = [...trades].sort((a, b) => a.entryTime.localeCompare(b.entryTime))
+  const sorted = [...trades].sort((a, b) => a.exitTime.localeCompare(b.exitTime))
   let running = startingBalance
   const data = [
     { label: 'Start', balance: running },
