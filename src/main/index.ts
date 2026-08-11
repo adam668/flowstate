@@ -1,19 +1,5 @@
+const { app, BrowserWindow } = require('electron')
 const path = require('path')
-
-console.log('Starting main process...')
-console.log('Available globals:', Object.keys(global).filter(k => k !== 'global').sort())
-
-const app = (global as any).app
-const BrowserWindow = (global as any).BrowserWindow
-
-if (!app || !BrowserWindow) {
-  console.error('Electron API not found in globals, app=', typeof app, 'BrowserWindow=', typeof BrowserWindow)
-  console.error('process.argv:', process.argv)
-  console.error('Exiting...')
-  process.exit(1)
-}
-
-console.log('Successfully got Electron API from globals')
 
 let mainWindow: any = null
 
