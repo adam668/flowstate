@@ -1,5 +1,7 @@
 import { app, BrowserWindow } from 'electron'
 import { join } from 'path'
+import { createConnection } from './db/connection'
+import { registerHandlers } from './ipc/registerHandlers'
 
 let mainWindow: BrowserWindow | null = null
 
@@ -21,7 +23,11 @@ function createWindow(): void {
   }
 }
 
-app.on('ready', createWindow)
+app.on('ready', () => {
+  const db = createConnection(join(app.getPath('userData'), 'flowstate.db'))
+  registerHandlers(db)
+  createWindow()
+})
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
