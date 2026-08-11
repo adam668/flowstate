@@ -51,6 +51,8 @@ export interface RuleStatus {
   accountId: number
   highWaterMark: number
   currentBalance: number
+  drawdownType: DrawdownType
+  drawdownAmount: number
   drawdownLimit: number
   drawdownUsed: number
   drawdownRemaining: number

@@ -6,15 +6,8 @@ import { createTrade, listTradesForAccount } from '../db/trades.repo'
 import { getOrCreateTag } from '../db/tags.repo'
 import { computeRuleStatus } from '../ruleEngine/computeRuleStatus'
 import type { NewAccount, NewRuleProfile, NewTrade } from '../../shared/types'
-
-// Local calendar day, not UTC (toISOString() would shift the date near midnight
-// for traders not on UTC). Matches the local-date interpretation computeRuleStatus expects.
-function toLocalDateString(date: Date): string {
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
-}
+// Local calendar day, not UTC. Shared with the rule engine so the two can never drift.
+import { toLocalDateString } from '../../shared/date'
 
 export function registerHandlers(db: Database.Database): void {
   ipcMain.handle('accounts:list', () => listAccounts(db))

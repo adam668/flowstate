@@ -1,23 +1,39 @@
 import { contextBridge, ipcRenderer } from 'electron'
-import type { Account, NewAccount, NewRuleProfile, NewTrade } from '../shared/types'
+import type {
+  Account,
+  NewAccount,
+  NewRuleProfile,
+  NewTrade,
+  RuleProfile,
+  RuleStatus,
+  Tag,
+  Trade
+} from '../shared/types'
 
+// Every method carries an explicit return type: `ipcRenderer.invoke` returns
+// Promise<any>, so without these annotations the shared-types contract is erased
+// at exactly the boundary the renderer consumes it through.
 const api = {
   accounts: {
     list: (): Promise<Account[]> => ipcRenderer.invoke('accounts:list'),
-    create: (account: NewAccount) => ipcRenderer.invoke('accounts:create', account)
+    create: (account: NewAccount): Promise<Account> =>
+      ipcRenderer.invoke('accounts:create', account)
   },
   ruleProfiles: {
-    create: (profile: NewRuleProfile) => ipcRenderer.invoke('ruleProfiles:create', profile)
+    create: (profile: NewRuleProfile): Promise<RuleProfile> =>
+      ipcRenderer.invoke('ruleProfiles:create', profile)
   },
   trades: {
-    listForAccount: (accountId: number) => ipcRenderer.invoke('trades:listForAccount', accountId),
-    create: (trade: NewTrade) => ipcRenderer.invoke('trades:create', trade)
+    listForAccount: (accountId: number): Promise<Trade[]> =>
+      ipcRenderer.invoke('trades:listForAccount', accountId),
+    create: (trade: NewTrade): Promise<Trade> => ipcRenderer.invoke('trades:create', trade)
   },
   tags: {
-    getOrCreate: (name: string) => ipcRenderer.invoke('tags:getOrCreate', name)
+    getOrCreate: (name: string): Promise<Tag> => ipcRenderer.invoke('tags:getOrCreate', name)
   },
   ruleStatus: {
-    get: (accountId: number) => ipcRenderer.invoke('ruleStatus:get', accountId)
+    get: (accountId: number): Promise<RuleStatus> =>
+      ipcRenderer.invoke('ruleStatus:get', accountId)
   }
 }
 

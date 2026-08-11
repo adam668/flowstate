@@ -168,6 +168,27 @@ describe('computeRuleStatus', () => {
     expect(status.drawdownUsed).toBe(0) // clamped, not negative
   })
 
+  it('carries the profile drawdown type and amount through to the status', () => {
+    const trailing = computeRuleStatus(account, ruleProfile, [], '2026-08-11')
+    expect(trailing.drawdownType).toBe('trailing')
+    expect(trailing.drawdownAmount).toBe(5000)
+
+    const staticProfile: RuleProfile = { ...ruleProfile, drawdownType: 'static', drawdownAmount: 3000 }
+    const stat = computeRuleStatus(account, staticProfile, [], '2026-08-11')
+    expect(stat.drawdownType).toBe('static')
+    expect(stat.drawdownAmount).toBe(3000)
+  })
+
+  it('reports drawdownAmount as the true gauge limit for a static account in profit', () => {
+    // Regression: the view used to derive the limit as highWaterMark - drawdownLimit,
+    // which overstates the limit for a static account whose balance has run up.
+    const staticProfile: RuleProfile = { ...ruleProfile, drawdownType: 'static' }
+    const trades = [trade(10000, '2026-08-10T14:00:00Z')]
+    const status = computeRuleStatus(account, staticProfile, trades, '2026-08-11')
+    expect(status.highWaterMark - status.drawdownLimit).toBe(15000) // the brittle formula
+    expect(status.drawdownAmount).toBe(5000) // the real limit
+  })
+
   it('filters trades by accountId, ignoring others', () => {
     const otherAccountTrade = { ...trade(-3000, '2026-08-11T14:00:00Z'), accountId: 999 }
     const myTrade = trade(1000, '2026-08-11T09:00:00Z')
