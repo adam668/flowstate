@@ -8,26 +8,32 @@ interface SidebarProps {
 export function Sidebar({ active, onSelect }: SidebarProps): JSX.Element {
   return (
     <nav className="sidebar">
-      <a
+      <button
+        type="button"
         className={`sidebar-item ${active === 'dashboard' ? 'active' : ''}`}
         onClick={() => onSelect('dashboard')}
+        aria-current={active === 'dashboard' ? 'page' : undefined}
       >
         Dashboard
-      </a>
-      <a
+      </button>
+      <button
+        type="button"
         className={`sidebar-item ${active === 'tradeLog' ? 'active' : ''}`}
         onClick={() => onSelect('tradeLog')}
+        aria-current={active === 'tradeLog' ? 'page' : undefined}
       >
         Trade Log
-      </a>
-      <a
+      </button>
+      <button
+        type="button"
         className={`sidebar-item ${active === 'accounts' ? 'active' : ''}`}
         onClick={() => onSelect('accounts')}
+        aria-current={active === 'accounts' ? 'page' : undefined}
       >
         Accounts
-      </a>
-      <a className="sidebar-item disabled">Calendar</a>
-      <a className="sidebar-item disabled">Analytics</a>
+      </button>
+      <span className="sidebar-item disabled" aria-disabled="true">Calendar</span>
+      <span className="sidebar-item disabled" aria-disabled="true">Analytics</span>
     </nav>
   )
 }

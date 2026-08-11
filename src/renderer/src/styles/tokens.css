@@ -52,6 +52,14 @@ body {
   cursor: pointer;
 }
 
+button.sidebar-item {
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+}
+
 .sidebar-item.active {
   color: var(--text-primary);
   background: var(--surface-2);
