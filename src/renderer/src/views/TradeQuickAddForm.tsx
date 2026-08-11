@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { flowStateApi } from '../api/client'
+import { ErrorBanner } from '../components/ErrorBanner'
 import type { TradeSide } from '../../../shared/types'
 
 interface TradeQuickAddFormProps {
@@ -13,32 +14,39 @@ export function TradeQuickAddForm({ accountId, onCreated }: TradeQuickAddFormPro
   const [size, setSize] = useState('1')
   const [entryPrice, setEntryPrice] = useState('')
   const [exitPrice, setExitPrice] = useState('')
+  const [error, setError] = useState<string | null>(null)
 
   async function handleSubmit(e: React.FormEvent): Promise<void> {
     e.preventDefault()
     const now = new Date().toISOString()
-    await flowStateApi.trades.create({
-      accountId,
-      instrument,
-      side,
-      entryPrice: Number(entryPrice),
-      exitPrice: Number(exitPrice),
-      entryTime: now,
-      exitTime: now,
-      size: Number(size),
-      rMultiple: null,
-      notes: null,
-      screenshotPaths: [],
-      tagIds: []
-    })
-    setInstrument('')
-    setEntryPrice('')
-    setExitPrice('')
-    onCreated()
+    try {
+      setError(null)
+      await flowStateApi.trades.create({
+        accountId,
+        instrument,
+        side,
+        entryPrice: Number(entryPrice),
+        exitPrice: Number(exitPrice),
+        entryTime: now,
+        exitTime: now,
+        size: Number(size),
+        rMultiple: null,
+        notes: null,
+        screenshotPaths: [],
+        tagIds: []
+      })
+      setInstrument('')
+      setEntryPrice('')
+      setExitPrice('')
+      onCreated()
+    } catch (err) {
+      setError(`Could not log trade: ${err instanceof Error ? err.message : String(err)}`)
+    }
   }
 
   return (
     <form onSubmit={handleSubmit} className="trade-quick-add">
+      {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
       <input
         autoFocus
         placeholder="Instrument (ES)"

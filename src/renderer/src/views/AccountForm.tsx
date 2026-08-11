@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { flowStateApi } from '../api/client'
+import { ErrorBanner } from '../components/ErrorBanner'
 import type { AccountStatus, DrawdownType } from '../../../shared/types'
 
 interface AccountFormProps {
@@ -14,33 +15,40 @@ export function AccountForm({ onCreated }: AccountFormProps): JSX.Element {
   const [drawdownType, setDrawdownType] = useState<DrawdownType>('trailing')
   const [drawdownAmount, setDrawdownAmount] = useState('5000')
   const [dailyLossLimit, setDailyLossLimit] = useState('2500')
+  const [error, setError] = useState<string | null>(null)
 
   async function handleSubmit(e: React.FormEvent): Promise<void> {
     e.preventDefault()
-    const profile = await flowStateApi.ruleProfiles.create({
-      name: `${firmName} ${accountName}`,
-      drawdownType,
-      drawdownAmount: Number(drawdownAmount),
-      dailyLossLimit: dailyLossLimit ? Number(dailyLossLimit) : null,
-      consistencyPercent: null,
-      minTradingDays: null,
-      profitTarget: null
-    })
-    await flowStateApi.accounts.create({
-      firmName,
-      accountName,
-      startingBalance: Number(startingBalance),
-      currency: 'USD',
-      status,
-      ruleProfileId: profile.id
-    })
-    setFirmName('')
-    setAccountName('')
-    onCreated()
+    try {
+      setError(null)
+      const profile = await flowStateApi.ruleProfiles.create({
+        name: `${firmName} ${accountName}`,
+        drawdownType,
+        drawdownAmount: Number(drawdownAmount),
+        dailyLossLimit: dailyLossLimit ? Number(dailyLossLimit) : null,
+        consistencyPercent: null,
+        minTradingDays: null,
+        profitTarget: null
+      })
+      await flowStateApi.accounts.create({
+        firmName,
+        accountName,
+        startingBalance: Number(startingBalance),
+        currency: 'USD',
+        status,
+        ruleProfileId: profile.id
+      })
+      setFirmName('')
+      setAccountName('')
+      onCreated()
+    } catch (err) {
+      setError(`Could not create account: ${err instanceof Error ? err.message : String(err)}`)
+    }
   }
 
   return (
     <form onSubmit={handleSubmit} className="account-form">
+      {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
       <input
         placeholder="Firm (e.g. Apex)"
         value={firmName}
