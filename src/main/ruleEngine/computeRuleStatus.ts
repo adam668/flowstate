@@ -8,13 +8,22 @@ function stateFromRemaining(remaining: number, limit: number): RuleState {
   return 'clean'
 }
 
+function toLocalDateString(isoTimestamp: string): string {
+  const d = new Date(isoTimestamp)
+  const year = d.getFullYear()
+  const month = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
 export function computeRuleStatus(
   account: Account,
   ruleProfile: RuleProfile,
   trades: Trade[],
   asOfDate: string
 ): RuleStatus {
-  const sorted = [...trades].sort((a, b) => a.entryTime.localeCompare(b.entryTime))
+  const accountTrades = trades.filter((t) => t.accountId === account.id)
+  const sorted = [...accountTrades].sort((a, b) => a.exitTime.localeCompare(b.exitTime))
 
   let runningBalance = account.startingBalance
   let highWaterMark = account.startingBalance
@@ -29,7 +38,7 @@ export function computeRuleStatus(
   const drawdownState = stateFromRemaining(drawdownRemaining, ruleProfile.drawdownAmount)
 
   const todayPnl = sorted
-    .filter((t) => t.entryTime.startsWith(asOfDate))
+    .filter((t) => toLocalDateString(t.exitTime) === asOfDate)
     .reduce((sum, t) => sum + t.pnl, 0)
 
   let dailyLossRemaining: number | null = null
@@ -44,7 +53,7 @@ export function computeRuleStatus(
     highWaterMark,
     currentBalance: runningBalance,
     drawdownLimit,
-    drawdownUsed: drawdownBase - runningBalance,
+    drawdownUsed: Math.max(0, drawdownBase - runningBalance),
     drawdownRemaining,
     drawdownState,
     todayPnl,

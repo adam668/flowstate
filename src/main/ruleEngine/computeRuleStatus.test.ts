@@ -87,4 +87,92 @@ describe('computeRuleStatus', () => {
     expect(status.dailyLossState).toBe('n/a')
     expect(status.dailyLossRemaining).toBeNull()
   })
+
+  it('uses static drawdown type based on starting balance, not high-water mark', () => {
+    const staticProfile: RuleProfile = { ...ruleProfile, drawdownType: 'static' }
+    const trades = [trade(3000, '2026-08-10T14:00:00Z')]
+    const status = computeRuleStatus(account, staticProfile, trades, '2026-08-11')
+    expect(status.highWaterMark).toBe(153000)
+    expect(status.drawdownLimit).toBe(145000) // 150000 - 5000, NOT 153000 - 5000
+    expect(status.drawdownRemaining).toBe(8000) // 153000 - 145000
+  })
+
+  it('reaches exact violation boundary when drawdownRemaining equals zero', () => {
+    const trades = [trade(-5000, '2026-08-11T14:00:00Z')]
+    const status = computeRuleStatus(account, ruleProfile, trades, '2026-08-11')
+    expect(status.drawdownRemaining).toBe(0)
+    expect(status.drawdownState).toBe('violation')
+  })
+
+  it('reaches exact warning boundary when drawdownRemaining equals 10% of limit', () => {
+    const trades = [trade(-4500, '2026-08-11T14:00:00Z')]
+    const status = computeRuleStatus(account, ruleProfile, trades, '2026-08-11')
+    expect(status.drawdownRemaining).toBe(500) // exactly 10% of 5000
+    expect(status.drawdownState).toBe('warning')
+  })
+
+  it('computes net pnl correctly with multiple same-day trades', () => {
+    const trades = [
+      trade(1000, '2026-08-11T09:00:00Z'),
+      trade(-300, '2026-08-11T10:00:00Z'),
+      trade(200, '2026-08-11T11:00:00Z')
+    ]
+    const status = computeRuleStatus(account, ruleProfile, trades, '2026-08-11')
+    expect(status.todayPnl).toBe(900) // 1000 - 300 + 200
+  })
+
+  it('preserves original trades array order (purity check)', () => {
+    const originalTrades = [
+      trade(100, '2026-08-11T14:00:00Z'),
+      trade(-200, '2026-08-10T14:00:00Z')
+    ]
+    const tradesCopy = [...originalTrades]
+    computeRuleStatus(account, ruleProfile, originalTrades, '2026-08-11')
+    expect(originalTrades).toEqual(tradesCopy)
+  })
+
+  it('attributes trade pnl by exitTime, not entryTime, for daily tracking', () => {
+    // Trade crosses midnight boundary in local timezone
+    // Entry at noon UTC one day, exit at noon UTC next day, guarantees different local dates
+    const tradesCrossingDay: Trade[] = [
+      {
+        id: 1,
+        accountId: 1,
+        instrument: 'ES',
+        side: 'long',
+        entryPrice: 5000,
+        exitPrice: 5000,
+        entryTime: '2026-08-10T12:00:00Z',
+        exitTime: '2026-08-11T12:00:00Z',
+        size: 1,
+        pnl: -500,
+        rMultiple: null,
+        notes: null,
+        screenshotPaths: [],
+        tagIds: []
+      }
+    ]
+    // Compute the expected exit date in local timezone
+    const exitDate = new Date('2026-08-11T12:00:00Z')
+    const expectedDate = `${exitDate.getFullYear()}-${String(exitDate.getMonth() + 1).padStart(2, '0')}-${String(exitDate.getDate()).padStart(2, '0')}`
+
+    const status = computeRuleStatus(account, ruleProfile, tradesCrossingDay, expectedDate)
+    expect(status.todayPnl).toBe(-500) // counted toward exit date
+  })
+
+  it('clamps drawdownUsed to zero for static profile in profit', () => {
+    const staticProfile: RuleProfile = { ...ruleProfile, drawdownType: 'static' }
+    const trades = [trade(10000, '2026-08-10T14:00:00Z')]
+    const status = computeRuleStatus(account, staticProfile, trades, '2026-08-11')
+    expect(status.currentBalance).toBe(160000) // in profit
+    expect(status.drawdownUsed).toBe(0) // clamped, not negative
+  })
+
+  it('filters trades by accountId, ignoring others', () => {
+    const otherAccountTrade = { ...trade(-3000, '2026-08-11T14:00:00Z'), accountId: 999 }
+    const myTrade = trade(1000, '2026-08-11T09:00:00Z')
+    const status = computeRuleStatus(account, ruleProfile, [otherAccountTrade, myTrade], '2026-08-11')
+    expect(status.todayPnl).toBe(1000) // only myTrade counts
+    expect(status.currentBalance).toBe(151000) // only myTrade affects balance
+  })
 })
