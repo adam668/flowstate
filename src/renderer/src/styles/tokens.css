@@ -74,3 +74,19 @@ button.sidebar-item {
   padding: 24px 32px;
   overflow-y: auto;
 }
+
+.gauge-card {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px 22px;
+  max-width: 460px;
+}
+.gauge-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px; }
+.gauge-title { font-size: 12px; font-weight: 500; color: var(--text-secondary); }
+.gauge-firm { font-family: var(--mono); font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.gauge-value { font-family: var(--mono); font-size: 20px; font-weight: 600; color: var(--accent); font-variant-numeric: tabular-nums; }
+.gauge-track { position: relative; height: 28px; background: var(--surface-3); border-radius: 4px; overflow: hidden; border: 1px solid var(--border-soft); }
+.gauge-fill { position: absolute; top: 0; bottom: 0; left: 0; background: linear-gradient(90deg, rgba(217,154,61,0.35), rgba(217,154,61,0.55)); border-right: 2px solid var(--accent); }
+.gauge-buffer-line { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--pnl-neg); }
+.gauge-foot { display: flex; justify-content: space-between; margin-top: 10px; font-family: var(--mono); font-size: 10px; color: var(--text-muted); }
