@@ -9,7 +9,8 @@
     "dev": "electron-vite dev",
     "build": "electron-vite build",
     "preview": "electron-vite preview",
-    "test": "vitest"
+    "test": "vitest",
+    "typecheck": "tsc --build"
   },
   "dependencies": {
     "better-sqlite3": "^13.0.3",

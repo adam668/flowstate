@@ -5,3 +5,5 @@ dist-electron/
 out/
 .DS_Store
 *.log
+.tsbuild/
+*.tsbuildinfo
