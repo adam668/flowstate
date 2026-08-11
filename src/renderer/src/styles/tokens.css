@@ -108,3 +108,15 @@ button.sidebar-item {
 .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 6px; position: relative; top: -1px; }
 .dot.warn { background: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
 .dot.violation { background: var(--pnl-neg); box-shadow: 0 0 0 3px var(--pnl-neg-dim); }
+
+.trade-quick-add { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin: 16px 0; }
+.trade-quick-add input, .trade-quick-add select { background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; font-family: var(--sans); font-size: 13px; color: var(--text-primary); }
+.trade-quick-add input:focus, .trade-quick-add select:focus { outline: none; border-color: var(--accent); }
+.trade-quick-add input::placeholder { color: var(--text-muted); }
+.trade-quick-add button { background: var(--accent); border: none; border-radius: 6px; padding: 8px 16px; font-family: var(--sans); font-size: 13px; font-weight: 500; color: var(--bg); cursor: pointer; }
+
+.trade-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-family: var(--mono); font-size: 13px; font-variant-numeric: tabular-nums; }
+.trade-table th { text-align: left; padding: 8px 12px; color: var(--text-muted); font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--border); }
+.trade-table td { padding: 8px 12px; border-bottom: 1px solid var(--border-soft); color: var(--text-primary); }
+.trade-table td.pos { color: var(--pnl-pos); }
+.trade-table td.neg { color: var(--pnl-neg); }
