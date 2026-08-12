@@ -38,6 +38,7 @@ const api = {
   },
   updates: {
     restartAndInstall: (): Promise<void> => ipcRenderer.invoke('updates:restart'),
+    getStatus: (): Promise<UpdateStatus | null> => ipcRenderer.invoke('updates:getStatus'),
     onStatusChange: (callback: (status: UpdateStatus) => void): (() => void) => {
       const listener = (_event: Electron.IpcRendererEvent, status: UpdateStatus): void =>
         callback(status)

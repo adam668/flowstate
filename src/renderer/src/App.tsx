@@ -12,6 +12,11 @@ export default function App(): JSX.Element {
   const [readyVersion, setReadyVersion] = useState<string | null>(null)
 
   useEffect(() => {
+    // Catch up on any status that arrived before this listener was live —
+    // checkForUpdates runs at app start, which can beat React mounting.
+    void flowStateApi.updates.getStatus().then((status) => {
+      if (status?.state === 'ready') setReadyVersion(status.version)
+    })
     return flowStateApi.updates.onStatusChange((status: UpdateStatus) => {
       if (status.state === 'ready') setReadyVersion(status.version)
     })

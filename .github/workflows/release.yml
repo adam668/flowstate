@@ -11,6 +11,10 @@ permissions:
 jobs:
   release:
     strategy:
+      # Both jobs publish to the same GitHub Release for the tag. Run them
+      # sequentially so the second finds the release the first created,
+      # instead of both racing to create it.
+      max-parallel: 1
       matrix:
         os: [windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}

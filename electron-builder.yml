@@ -11,9 +11,17 @@ nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true
 mac:
-  target: dmg
+  target:
+    - target: dmg
+      arch:
+        - x64
+        - arm64
   category: public.app-category.finance
 publish:
   provider: github
   owner: adam668
   repo: flowstate
+  # Without this, electron-builder defaults to "draft" — draft releases are
+  # invisible at /releases/latest and to electron-updater's feed lookup, so
+  # auto-update would silently never fire.
+  releaseType: release
