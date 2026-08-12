@@ -7,7 +7,8 @@ import type {
   RuleProfile,
   RuleStatus,
   Tag,
-  Trade
+  Trade,
+  UpdateStatus
 } from '../shared/types'
 
 // Every method carries an explicit return type: `ipcRenderer.invoke` returns
@@ -34,6 +35,15 @@ const api = {
   ruleStatus: {
     get: (accountId: number): Promise<RuleStatus> =>
       ipcRenderer.invoke('ruleStatus:get', accountId)
+  },
+  updates: {
+    restartAndInstall: (): Promise<void> => ipcRenderer.invoke('updates:restart'),
+    onStatusChange: (callback: (status: UpdateStatus) => void): (() => void) => {
+      const listener = (_event: Electron.IpcRendererEvent, status: UpdateStatus): void =>
+        callback(status)
+      ipcRenderer.on('updates:status', listener)
+      return () => ipcRenderer.removeListener('updates:status', listener)
+    }
   }
 }
 

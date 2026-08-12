@@ -2,6 +2,8 @@ import { app, BrowserWindow } from 'electron'
 import { join } from 'path'
 import { createConnection } from './db/connection'
 import { registerHandlers } from './ipc/registerHandlers'
+import { registerUpdateHandlers } from './ipc/registerUpdateHandlers'
+import { checkForUpdates } from './updates/checkForUpdates'
 
 let mainWindow: BrowserWindow | null = null
 
@@ -26,7 +28,11 @@ function createWindow(): void {
 app.on('ready', () => {
   const db = createConnection(join(app.getPath('userData'), 'flowstate.db'))
   registerHandlers(db)
+  registerUpdateHandlers()
   createWindow()
+  checkForUpdates((status) => {
+    mainWindow?.webContents.send('updates:status', status)
+  })
 })
 
 app.on('window-all-closed', () => {
