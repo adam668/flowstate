@@ -10,10 +10,13 @@
     "build": "electron-vite build",
     "preview": "electron-vite preview",
     "test": "vitest",
-    "typecheck": "tsc --build"
+    "typecheck": "tsc --build",
+    "pretest": "node -e \"try{require('fs').rmSync('node_modules/better-sqlite3/build',{recursive:true,force:true})}catch(e){}\" && npm rebuild better-sqlite3",
+    "predev": "node -e \"try{require('fs').rmSync('node_modules/better-sqlite3/build',{recursive:true,force:true})}catch(e){}\" && electron-builder install-app-deps",
+    "prebuild": "node -e \"try{require('fs').rmSync('node_modules/better-sqlite3/build',{recursive:true,force:true})}catch(e){}\" && electron-builder install-app-deps"
   },
   "dependencies": {
-    "better-sqlite3": "^13.0.3",
+    "better-sqlite3": "^12.11.1",
     "electron-vite": "^2.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
