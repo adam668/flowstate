@@ -11,6 +11,12 @@
 
 ## Mac
 
+Each release publishes four Mac files: `FlowState-x.y.z-arm64.dmg`,
+`FlowState-x.y.z-x64.dmg`, and a `.zip` alongside each of those. **Download
+the `.dmg`** for your Mac's processor — the `.zip` files exist only so
+FlowState can auto-update itself later; you don't need to download or open
+them yourself.
+
 1. Download the `.dmg` for your Mac's processor from the
    [latest release](https://github.com/adam668/flowstate/releases/latest):
    - `FlowState-x.y.z-arm64.dmg` — **Apple Silicon** Macs: anything from 2020

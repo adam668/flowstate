@@ -19,7 +19,13 @@
 
    The two platform builds run with `max-parallel: 1` so they don't race to
    create the same release — expect the Windows job to finish before the Mac
-   job starts. The Mac job produces two DMGs, `-arm64` and `-x64`.
+   job starts. The Mac job produces two DMGs, `FlowState-x.y.z-arm64.dmg` and
+   `FlowState-x.y.z-x64.dmg` (both consistently arch-suffixed, since
+   `electron-builder.yml` now sets `artifactName` explicitly — otherwise
+   electron-builder silently drops the suffix from the default arch's
+   filename). It also publishes a matching `.zip` for each arch; those power
+   electron-updater's Squirrel.Mac auto-update mechanism (which cannot apply
+   a `.dmg`) and friends never interact with them directly.
 4. Once the release is published, friends' already-installed apps detect and
    download the update automatically on their next launch. For a first
    install, send them the Releases page:

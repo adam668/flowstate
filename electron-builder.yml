@@ -16,7 +16,12 @@ mac:
       arch:
         - x64
         - arm64
+    - target: zip
+      arch:
+        - x64
+        - arm64
   category: public.app-category.finance
+  artifactName: ${productName}-${version}-${arch}.${ext}
 publish:
   provider: github
   owner: adam668
