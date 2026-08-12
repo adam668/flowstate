@@ -66,3 +66,11 @@ export interface RuleStatus {
 export type NewAccount = Omit<Account, 'id' | 'createdAt'>
 export type NewRuleProfile = Omit<RuleProfile, 'id'>
 export type NewTrade = Omit<Trade, 'id' | 'pnl'>
+
+export type UpdateStatus =
+  | { state: 'checking' }
+  | { state: 'available'; version: string }
+  | { state: 'not-available' }
+  | { state: 'downloading'; percent: number }
+  | { state: 'ready'; version: string }
+  | { state: 'error'; message: string }
