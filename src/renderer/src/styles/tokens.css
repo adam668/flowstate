@@ -186,3 +186,37 @@ button.sidebar-item {
   cursor: pointer;
 }
 .error-banner-dismiss:hover { color: var(--text-primary); }
+
+.update-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding: 10px 12px;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  background: var(--accent-dim);
+  color: var(--text-primary);
+  font-family: var(--sans);
+  font-size: 13px;
+}
+.update-banner-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.update-banner-message { flex: 1; }
+.update-banner-action {
+  background: var(--accent);
+  border: none;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--bg);
+  cursor: pointer;
+}
