@@ -74,3 +74,33 @@ export type UpdateStatus =
   | { state: 'downloading'; percent: number }
   | { state: 'ready'; version: string }
   | { state: 'error'; message: string }
+
+export interface JournalEntry {
+  id: number
+  date: string
+  content: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface JournalTemplate {
+  id: number
+  name: string
+  content: string
+  createdAt: string
+}
+
+export interface NewJournalEntry {
+  date: string
+  content: string
+}
+
+export interface NewJournalTemplate {
+  name: string
+  content: string
+}
+
+export interface UpdateJournalTemplate {
+  name?: string
+  content?: string
+}
