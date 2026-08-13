@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mkdtempSync, writeFileSync } from 'fs'
 import { tmpdir } from 'os'
-import { join } from 'path'
+import { join, basename } from 'path'
 
 let registeredHandler: ((request: Request) => Promise<Response>) | null = null
 
@@ -40,6 +40,18 @@ describe('mediaProtocol', () => {
   it('rejects a path-traversal request with 403', async () => {
     const response = await registeredHandler!(
       new Request('flowstate-media://' + encodeURIComponent('../../../etc/passwd'))
+    )
+    expect(response.status).toBe(403)
+  })
+
+  it('rejects a sibling-directory prefix bypass with 403', async () => {
+    // e.g. mediaDir = /tmp/flowstate-media-test-abc123, sibling =
+    // /tmp/flowstate-media-test-abc123-evil/secret.txt — a naive
+    // startsWith(mediaDir) string-prefix check would incorrectly allow this.
+    const siblingName = `${basename(mediaDir)}-evil`
+    const payload = `../${siblingName}/secret.txt`
+    const response = await registeredHandler!(
+      new Request('flowstate-media://' + encodeURIComponent(payload))
     )
     expect(response.status).toBe(403)
   })

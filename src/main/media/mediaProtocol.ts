@@ -1,5 +1,5 @@
 import { protocol } from 'electron'
-import { join, normalize } from 'path'
+import { join, normalize, relative, isAbsolute } from 'path'
 import { readFile, writeFile, mkdir } from 'fs/promises'
 import { randomUUID } from 'crypto'
 
@@ -20,7 +20,8 @@ export function registerMediaProtocol(mediaDir: string): void {
   protocol.handle('flowstate-media', async (request) => {
     const requestedName = decodeURIComponent(request.url.replace('flowstate-media://', ''))
     const resolved = normalize(join(mediaDir, requestedName))
-    if (!resolved.startsWith(normalize(mediaDir))) {
+    const rel = relative(mediaDir, resolved)
+    if (rel.startsWith('..') || isAbsolute(rel)) {
       return new Response('Forbidden', { status: 403 })
     }
     try {
