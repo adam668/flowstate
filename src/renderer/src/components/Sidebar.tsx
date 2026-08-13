@@ -1,4 +1,4 @@
-export type ViewName = 'dashboard' | 'tradeLog' | 'accounts' | 'calendar'
+export type ViewName = 'dashboard' | 'tradeLog' | 'accounts' | 'calendar' | 'journal'
 
 interface SidebarProps {
   active: ViewName
@@ -39,6 +39,14 @@ export function Sidebar({ active, onSelect }: SidebarProps): JSX.Element {
         aria-current={active === 'calendar' ? 'page' : undefined}
       >
         Calendar
+      </button>
+      <button
+        type="button"
+        className={`sidebar-item ${active === 'journal' ? 'active' : ''}`}
+        onClick={() => onSelect('journal')}
+        aria-current={active === 'journal' ? 'page' : undefined}
+      >
+        Journal
       </button>
       <span className="sidebar-item disabled" aria-disabled="true">Analytics</span>
     </nav>
