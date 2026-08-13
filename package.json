@@ -17,6 +17,11 @@
     "publish": "npm run build && electron-builder --publish always"
   },
   "dependencies": {
+    "@blocknote/core": "^0.53.0",
+    "@blocknote/mantine": "^0.53.0",
+    "@blocknote/react": "^0.53.0",
+    "@mantine/core": "^8.3.18",
+    "@mantine/hooks": "^8.3.18",
     "better-sqlite3": "^12.11.1",
     "electron-updater": "^6.8.9",
     "react": "^18.2.0",
