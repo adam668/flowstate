@@ -32,6 +32,19 @@ describe('mediaProtocol', () => {
     expect(body.toString()).toBe('fake-image-bytes')
   })
 
+  it('serves a file when the name lands in the host position with a trailing slash', async () => {
+    // Chromium parses a `standard: true` scheme with generic hierarchical URI
+    // syntax, so `flowstate-media://test.png` serializes as
+    // `flowstate-media://test.png/` — the filename is the *host*, not a path.
+    writeFileSync(join(mediaDir, 'test.png'), Buffer.from('fake-image-bytes'))
+    const request = new Request('flowstate-media://test.png/')
+    expect(new URL(request.url).host).toBe('test.png')
+    const response = await registeredHandler!(request)
+    expect(response.status).toBe(200)
+    const body = Buffer.from(await response.arrayBuffer())
+    expect(body.toString()).toBe('fake-image-bytes')
+  })
+
   it('returns 404 for a file that does not exist', async () => {
     const response = await registeredHandler!(new Request('flowstate-media://missing.png'))
     expect(response.status).toBe(404)
