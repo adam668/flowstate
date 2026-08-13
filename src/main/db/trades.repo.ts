@@ -74,3 +74,8 @@ export function listTradesForAccount(db: Database.Database, accountId: number): 
     .all(accountId)
   return rows.map((row) => toTrade(db, row))
 }
+
+export function listAllTrades(db: Database.Database): Trade[] {
+  const rows = db.prepare('SELECT * FROM trades ORDER BY entry_time ASC').all()
+  return rows.map((row) => toTrade(db, row))
+}

@@ -2,10 +2,28 @@ import { ipcMain } from 'electron'
 import type Database from 'better-sqlite3'
 import { createAccount, listAccounts, getAccount } from '../db/accounts.repo'
 import { createRuleProfile, getRuleProfile } from '../db/ruleProfiles.repo'
-import { createTrade, listTradesForAccount } from '../db/trades.repo'
+import { createTrade, listTradesForAccount, listAllTrades } from '../db/trades.repo'
 import { getOrCreateTag } from '../db/tags.repo'
 import { computeRuleStatus } from '../ruleEngine/computeRuleStatus'
-import type { NewAccount, NewRuleProfile, NewTrade } from '../../shared/types'
+import {
+  getJournalEntryByDate,
+  upsertJournalEntry,
+  listJournalEntries
+} from '../db/journalEntries.repo'
+import {
+  listJournalTemplates,
+  createJournalTemplate,
+  updateJournalTemplate,
+  deleteJournalTemplate
+} from '../db/journalTemplates.repo'
+import type {
+  NewAccount,
+  NewRuleProfile,
+  NewTrade,
+  NewJournalEntry,
+  NewJournalTemplate,
+  UpdateJournalTemplate
+} from '../../shared/types'
 // Local calendar day, not UTC. Shared with the rule engine so the two can never drift.
 import { toLocalDateString } from '../../shared/date'
 
@@ -13,10 +31,15 @@ export function registerHandlers(db: Database.Database): void {
   ipcMain.handle('accounts:list', () => listAccounts(db))
   ipcMain.handle('accounts:create', (_e, account: NewAccount) => createAccount(db, account))
 
-  ipcMain.handle('ruleProfiles:create', (_e, profile: NewRuleProfile) => createRuleProfile(db, profile))
+  ipcMain.handle('ruleProfiles:create', (_e, profile: NewRuleProfile) =>
+    createRuleProfile(db, profile)
+  )
 
-  ipcMain.handle('trades:listForAccount', (_e, accountId: number) => listTradesForAccount(db, accountId))
+  ipcMain.handle('trades:listForAccount', (_e, accountId: number) =>
+    listTradesForAccount(db, accountId)
+  )
   ipcMain.handle('trades:create', (_e, trade: NewTrade) => createTrade(db, trade))
+  ipcMain.handle('trades:listAll', () => listAllTrades(db))
 
   ipcMain.handle('tags:getOrCreate', (_e, name: string) => getOrCreateTag(db, name))
 
@@ -29,4 +52,19 @@ export function registerHandlers(db: Database.Database): void {
     const today = toLocalDateString(new Date())
     return computeRuleStatus(account, profile, trades, today)
   })
+
+  ipcMain.handle('journalEntries:getByDate', (_e, date: string) => getJournalEntryByDate(db, date))
+  ipcMain.handle('journalEntries:upsert', (_e, entry: NewJournalEntry) =>
+    upsertJournalEntry(db, entry)
+  )
+  ipcMain.handle('journalEntries:list', () => listJournalEntries(db))
+
+  ipcMain.handle('journalTemplates:list', () => listJournalTemplates(db))
+  ipcMain.handle('journalTemplates:create', (_e, template: NewJournalTemplate) =>
+    createJournalTemplate(db, template)
+  )
+  ipcMain.handle('journalTemplates:update', (_e, id: number, updates: UpdateJournalTemplate) =>
+    updateJournalTemplate(db, id, updates)
+  )
+  ipcMain.handle('journalTemplates:delete', (_e, id: number) => deleteJournalTemplate(db, id))
 }

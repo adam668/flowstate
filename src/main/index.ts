@@ -1,10 +1,19 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, protocol } from 'electron'
 import { join } from 'path'
 import { createConnection } from './db/connection'
 import { registerHandlers } from './ipc/registerHandlers'
 import { registerUpdateHandlers } from './ipc/registerUpdateHandlers'
+import { registerMediaHandlers } from './ipc/registerMediaHandlers'
+import { registerMediaProtocol } from './media/mediaProtocol'
 import { checkForUpdates } from './updates/checkForUpdates'
 import type { UpdateStatus } from '../shared/types'
+
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: 'flowstate-media',
+    privileges: { standard: true, secure: true, supportFetchAPI: true, bypassCSP: true }
+  }
+])
 
 let mainWindow: BrowserWindow | null = null
 // Cached so the renderer can pull the last status on mount via
@@ -33,6 +42,11 @@ app.on('ready', () => {
   const db = createConnection(join(app.getPath('userData'), 'flowstate.db'))
   registerHandlers(db)
   registerUpdateHandlers(() => lastUpdateStatus)
+
+  const mediaDir = join(app.getPath('userData'), 'journal-images')
+  registerMediaProtocol(mediaDir)
+  registerMediaHandlers(mediaDir)
+
   createWindow()
   if (process.env['FLOWSTATE_FAKE_UPDATE']) {
     // Dev-only escape hatch: lets the update banner and restart flow be

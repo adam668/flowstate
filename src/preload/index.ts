@@ -8,7 +8,12 @@ import type {
   RuleStatus,
   Tag,
   Trade,
-  UpdateStatus
+  UpdateStatus,
+  JournalEntry,
+  NewJournalEntry,
+  JournalTemplate,
+  NewJournalTemplate,
+  UpdateJournalTemplate
 } from '../shared/types'
 
 // Every method carries an explicit return type: `ipcRenderer.invoke` returns
@@ -27,7 +32,8 @@ const api = {
   trades: {
     listForAccount: (accountId: number): Promise<Trade[]> =>
       ipcRenderer.invoke('trades:listForAccount', accountId),
-    create: (trade: NewTrade): Promise<Trade> => ipcRenderer.invoke('trades:create', trade)
+    create: (trade: NewTrade): Promise<Trade> => ipcRenderer.invoke('trades:create', trade),
+    listAll: (): Promise<Trade[]> => ipcRenderer.invoke('trades:listAll')
   },
   tags: {
     getOrCreate: (name: string): Promise<Tag> => ipcRenderer.invoke('tags:getOrCreate', name)
@@ -45,6 +51,25 @@ const api = {
       ipcRenderer.on('updates:status', listener)
       return () => ipcRenderer.removeListener('updates:status', listener)
     }
+  },
+  journalEntries: {
+    getByDate: (date: string): Promise<JournalEntry | undefined> =>
+      ipcRenderer.invoke('journalEntries:getByDate', date),
+    upsert: (entry: NewJournalEntry): Promise<JournalEntry> =>
+      ipcRenderer.invoke('journalEntries:upsert', entry),
+    list: (): Promise<JournalEntry[]> => ipcRenderer.invoke('journalEntries:list')
+  },
+  journalTemplates: {
+    list: (): Promise<JournalTemplate[]> => ipcRenderer.invoke('journalTemplates:list'),
+    create: (template: NewJournalTemplate): Promise<JournalTemplate> =>
+      ipcRenderer.invoke('journalTemplates:create', template),
+    update: (id: number, updates: UpdateJournalTemplate): Promise<JournalTemplate> =>
+      ipcRenderer.invoke('journalTemplates:update', id, updates),
+    delete: (id: number): Promise<void> => ipcRenderer.invoke('journalTemplates:delete', id)
+  },
+  media: {
+    saveImage: (base64Data: string, mimeType: string): Promise<string> =>
+      ipcRenderer.invoke('media:saveImage', base64Data, mimeType)
   }
 }
 
