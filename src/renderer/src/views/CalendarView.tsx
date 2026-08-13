@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { flowStateApi } from '../api/client'
 import { computeDayAggregates } from '../../../shared/calendar'
 import { JournalEntryEditor } from './JournalEntryEditor'
+import { ErrorBanner } from '../components/ErrorBanner'
 import type { Trade } from '../../../shared/types'
 
 function pad(n: number): string {
@@ -19,9 +20,17 @@ export function CalendarView(): JSX.Element {
     return { year: now.getFullYear(), month: now.getMonth() }
   })
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    flowStateApi.trades.listAll().then(setTrades)
+    flowStateApi.trades
+      .listAll()
+      .then(setTrades)
+      .catch((err: unknown) => {
+        setError(
+          `Could not load trades for the calendar: ${err instanceof Error ? err.message : String(err)}`
+        )
+      })
   }, [])
 
   const aggregatesByDate = useMemo(() => {
@@ -45,6 +54,7 @@ export function CalendarView(): JSX.Element {
 
   return (
     <div className="calendar-view">
+      {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
       <div className="calendar-header">
         <button
           type="button"

@@ -223,6 +223,15 @@ button.sidebar-item {
 
 .journal-editor { display: flex; flex-direction: column; gap: 8px; }
 .journal-editor-loading { color: var(--text-muted); font-size: 13px; font-family: var(--sans); }
+/* Backstop for BlockNote's own container surface — the rest of its palette is
+   driven by the Theme object in JournalEntryEditor.tsx, which maps BlockNote's
+   --bn-* variables onto these same tokens. No new colors. */
+.journal-editor .bn-container,
+.journal-editor .bn-editor {
+  background: var(--surface-1);
+  color: var(--text-primary);
+  font-family: var(--sans);
+}
 
 .calendar-view { display: flex; flex-direction: column; gap: 16px; }
 .calendar-header { display: flex; align-items: center; gap: 12px; }
@@ -273,4 +282,22 @@ button.sidebar-item {
 .journal-template-item > button:first-child { flex: 1; text-align: left; background: none; border: none; padding: 4px 8px; font-family: var(--sans); font-size: 12px; color: var(--text-secondary); cursor: pointer; }
 .journal-template-delete { background: none; border: none; color: var(--text-muted); font-size: 14px; cursor: pointer; padding: 0 4px; }
 .journal-template-delete:hover { color: var(--pnl-neg); }
+.journal-template-rename { background: none; border: none; color: var(--text-muted); font-size: 12px; cursor: pointer; padding: 0 4px; }
+.journal-template-rename:hover { color: var(--accent); }
+.journal-template-name-form { display: flex; align-items: center; gap: 4px; }
+.journal-template-name-form button { background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; padding: 4px 8px; font-size: 11px; color: var(--text-secondary); cursor: pointer; }
+.journal-template-name-action { background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; padding: 4px 8px; font-size: 11px; color: var(--text-secondary); cursor: pointer; }
+.journal-template-name-input {
+  flex: 1;
+  min-width: 0;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-family: var(--sans);
+  font-size: 12px;
+  color: var(--text-primary);
+}
+.journal-template-name-input:focus { outline: none; border-color: var(--accent); }
+.journal-template-name-input::placeholder { color: var(--text-muted); }
 .journal-editor-pane { background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 16px; overflow-y: auto; }

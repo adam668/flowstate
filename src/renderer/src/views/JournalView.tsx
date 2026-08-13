@@ -25,6 +25,12 @@ export function JournalView(): JSX.Element {
   const [selectedDate, setSelectedDate] = useState<string>(() => toLocalDateString(new Date()))
   const [activeEditor, setActiveEditor] = useState<BlockNoteEditor | null>(null)
   const [error, setError] = useState<string | null>(null)
+  // Electron's renderer has no `window.prompt` (it is a permanent, documented
+  // limitation), so naming is done with inline controlled inputs instead.
+  const [isNamingTemplate, setIsNamingTemplate] = useState(false)
+  const [newTemplateName, setNewTemplateName] = useState('')
+  const [renamingTemplateId, setRenamingTemplateId] = useState<number | null>(null)
+  const [renameTemplateName, setRenameTemplateName] = useState('')
 
   function refreshEntries(): void {
     flowStateApi.journalEntries
@@ -61,18 +67,51 @@ export function JournalView(): JSX.Element {
     activeEditor.insertBlocks(blocks, lastBlock, 'after')
   }
 
-  async function saveCurrentAsTemplate(): Promise<void> {
-    if (!activeEditor) return
-    const name = window.prompt('Template name?')
-    if (!name) return
+  function cancelNamingTemplate(): void {
+    setIsNamingTemplate(false)
+    setNewTemplateName('')
+  }
+
+  async function confirmSaveCurrentAsTemplate(): Promise<void> {
+    const name = newTemplateName.trim()
+    if (!activeEditor || !name) {
+      cancelNamingTemplate()
+      return
+    }
     try {
       await flowStateApi.journalTemplates.create({
         name,
         content: JSON.stringify(activeEditor.document)
       })
+      cancelNamingTemplate()
       refreshTemplates()
     } catch (err) {
       setError(`Could not save template: ${err instanceof Error ? err.message : String(err)}`)
+    }
+  }
+
+  function startRenamingTemplate(template: JournalTemplate): void {
+    setRenamingTemplateId(template.id)
+    setRenameTemplateName(template.name)
+  }
+
+  function cancelRenamingTemplate(): void {
+    setRenamingTemplateId(null)
+    setRenameTemplateName('')
+  }
+
+  async function confirmRenameTemplate(id: number): Promise<void> {
+    const name = renameTemplateName.trim()
+    if (!name) {
+      cancelRenamingTemplate()
+      return
+    }
+    try {
+      await flowStateApi.journalTemplates.update(id, { name })
+      cancelRenamingTemplate()
+      refreshTemplates()
+    } catch (err) {
+      setError(`Could not rename template: ${err instanceof Error ? err.message : String(err)}`)
     }
   }
 
@@ -123,24 +162,86 @@ export function JournalView(): JSX.Element {
         <div className="journal-templates">
           <div className="journal-templates-header">
             <span className="field-label">Templates</span>
-            <button type="button" onClick={saveCurrentAsTemplate}>
+            <button type="button" onClick={() => setIsNamingTemplate(true)}>
               Save current as template
             </button>
           </div>
+          {isNamingTemplate && (
+            <div className="journal-template-name-form">
+              <input
+                className="journal-template-name-input"
+                placeholder="Template name…"
+                aria-label="Template name"
+                autoFocus
+                value={newTemplateName}
+                onChange={(e) => setNewTemplateName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') void confirmSaveCurrentAsTemplate()
+                  if (e.key === 'Escape') cancelNamingTemplate()
+                }}
+              />
+              <button type="button" onClick={() => void confirmSaveCurrentAsTemplate()}>
+                Save template
+              </button>
+              <button type="button" onClick={cancelNamingTemplate}>
+                Cancel
+              </button>
+            </div>
+          )}
           <ul className="journal-template-list">
             {templates.map((template) => (
               <li key={template.id} className="journal-template-item">
-                <button type="button" onClick={() => applyTemplate(template)}>
-                  {template.name}
-                </button>
-                <button
-                  type="button"
-                  className="journal-template-delete"
-                  onClick={() => deleteTemplate(template.id)}
-                  aria-label={`Delete template ${template.name}`}
-                >
-                  ×
-                </button>
+                {renamingTemplateId === template.id ? (
+                  <>
+                    <input
+                      className="journal-template-name-input"
+                      aria-label={`Rename template ${template.name}`}
+                      autoFocus
+                      value={renameTemplateName}
+                      onChange={(e) => setRenameTemplateName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') void confirmRenameTemplate(template.id)
+                        if (e.key === 'Escape') cancelRenamingTemplate()
+                      }}
+                    />
+                    <button
+                      type="button"
+                      className="journal-template-name-action"
+                      onClick={() => void confirmRenameTemplate(template.id)}
+                    >
+                      Save name
+                    </button>
+                    <button
+                      type="button"
+                      className="journal-template-name-action"
+                      onClick={cancelRenamingTemplate}
+                    >
+                      Cancel
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button type="button" onClick={() => applyTemplate(template)}>
+                      {template.name}
+                    </button>
+                    <button
+                      type="button"
+                      className="journal-template-rename"
+                      onClick={() => startRenamingTemplate(template)}
+                      aria-label={`Rename template ${template.name}`}
+                    >
+                      ✎
+                    </button>
+                    <button
+                      type="button"
+                      className="journal-template-delete"
+                      onClick={() => deleteTemplate(template.id)}
+                      aria-label={`Delete template ${template.name}`}
+                    >
+                      ×
+                    </button>
+                  </>
+                )}
               </li>
             ))}
           </ul>

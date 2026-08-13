@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, fireEvent, act } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 const mockEditor = { document: [{ type: 'paragraph', content: 'hello' }] }
@@ -56,6 +56,31 @@ describe('JournalEntryEditor', () => {
     getByDateMock.mockResolvedValue(undefined)
     render(<JournalEntryEditor date="2026-08-14" />)
     await waitFor(() => expect(screen.getByText('simulate-edit')).toBeInTheDocument())
+  })
+
+  it('round-trips an edit through the IPC layer after the autosave debounce', async () => {
+    vi.useFakeTimers()
+    try {
+      getByDateMock.mockResolvedValue(undefined)
+      render(<JournalEntryEditor date="2026-08-13" />)
+      // Flush the pending getByDate promise so the editor body renders.
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(0)
+      })
+      expect(screen.getByText('simulate-edit')).toBeInTheDocument()
+
+      fireEvent.click(screen.getByText('simulate-edit'))
+      expect(upsertMock).not.toHaveBeenCalled()
+
+      vi.runAllTimers()
+
+      expect(upsertMock).toHaveBeenCalledWith({
+        date: '2026-08-13',
+        content: JSON.stringify(mockEditor.document)
+      })
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('calls onEditorReady once the editor is created', async () => {

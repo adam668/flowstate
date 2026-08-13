@@ -2,12 +2,35 @@ import { useEffect, useRef, useState } from 'react'
 import type { BlockNoteEditor, PartialBlock } from '@blocknote/core'
 import { useCreateBlockNote } from '@blocknote/react'
 import { BlockNoteView } from '@blocknote/mantine'
+import type { Theme } from '@blocknote/mantine'
 import '@blocknote/core/fonts/inter.css'
 import '@blocknote/mantine/style.css'
 import { flowStateApi } from '../api/client'
 import { ErrorBanner } from '../components/ErrorBanner'
 
 const AUTOSAVE_DEBOUNCE_MS = 800
+
+/**
+ * Maps BlockNote's theme slots onto FlowState's existing design tokens. BlockNote
+ * writes each value straight into a `--bn-*` CSS custom property on the editor
+ * root, so `var(--token)` references resolve against `:root` at paint time — no
+ * new colors are introduced here.
+ */
+const flowStateBlockNoteTheme: Theme = {
+  colors: {
+    editor: { text: 'var(--text-primary)', background: 'var(--surface-1)' },
+    menu: { text: 'var(--text-primary)', background: 'var(--surface-2)' },
+    tooltip: { text: 'var(--text-secondary)', background: 'var(--surface-3)' },
+    hovered: { text: 'var(--text-primary)', background: 'var(--surface-3)' },
+    selected: { text: 'var(--bg)', background: 'var(--accent)' },
+    disabled: { text: 'var(--text-muted)', background: 'var(--surface-2)' },
+    shadow: 'var(--border)',
+    border: 'var(--border)',
+    sideMenu: 'var(--text-muted)'
+  },
+  borderRadius: 6,
+  fontFamily: 'var(--sans)'
+}
 
 interface JournalEntryEditorProps {
   date: string
@@ -78,7 +101,14 @@ function JournalEntryEditorBody({
       const bytes = new Uint8Array(buffer)
       for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i])
       const base64 = btoa(binary)
-      return flowStateApi.media.saveImage(base64, file.type)
+      try {
+        return await flowStateApi.media.saveImage(base64, file.type)
+      } catch (err) {
+        // Surface the failure in the app's error banner, then re-throw so
+        // BlockNote still renders its own broken-image placeholder.
+        onSaveError(`Could not upload image: ${err instanceof Error ? err.message : String(err)}`)
+        throw err
+      }
     }
   })
 
@@ -103,5 +133,5 @@ function JournalEntryEditorBody({
     }, AUTOSAVE_DEBOUNCE_MS)
   }
 
-  return <BlockNoteView editor={editor} theme="dark" onChange={handleChange} />
+  return <BlockNoteView editor={editor} theme={flowStateBlockNoteTheme} onChange={handleChange} />
 }
