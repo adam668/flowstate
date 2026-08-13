@@ -223,3 +223,36 @@ button.sidebar-item {
 
 .journal-editor { display: flex; flex-direction: column; gap: 8px; }
 .journal-editor-loading { color: var(--text-muted); font-size: 13px; font-family: var(--sans); }
+
+.calendar-view { display: flex; flex-direction: column; gap: 16px; }
+.calendar-header { display: flex; align-items: center; gap: 12px; }
+.calendar-header button { background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; color: var(--text-primary); padding: 4px 10px; cursor: pointer; font-family: var(--sans); }
+.calendar-month-label { font-family: var(--mono); font-size: 13px; font-weight: 500; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; }
+.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.calendar-weekday { font-family: var(--mono); font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; text-align: center; padding-bottom: 4px; }
+.calendar-cell {
+  position: relative;
+  aspect-ratio: 1;
+  background: var(--surface-1);
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-family: var(--sans);
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 6px;
+  gap: 2px;
+}
+.calendar-cell.empty { visibility: hidden; cursor: default; }
+.calendar-cell.pos { background: var(--pnl-pos-dim); border-color: var(--pnl-pos); color: var(--pnl-pos); }
+.calendar-cell.neg { background: var(--pnl-neg-dim); border-color: var(--pnl-neg); color: var(--pnl-neg); }
+.calendar-cell.selected { outline: 2px solid var(--accent); outline-offset: 1px; }
+.calendar-cell-day { font-family: var(--mono); font-size: 11px; color: var(--text-muted); }
+.calendar-cell-pnl { font-family: var(--mono); font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.calendar-cell-dot { position: absolute; top: 6px; right: 6px; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+.calendar-entry-panel { background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+.calendar-entry-heading { font-family: var(--mono); font-size: 12px; color: var(--text-secondary); margin: 0 0 12px; }

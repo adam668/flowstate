@@ -3,6 +3,7 @@ import { Sidebar, ViewName } from './components/Sidebar'
 import { DashboardView } from './views/DashboardView'
 import { AccountsView } from './views/AccountsView'
 import { TradeLogView } from './views/TradeLogView'
+import { CalendarView } from './views/CalendarView'
 import { UpdateBanner } from './components/UpdateBanner'
 import { flowStateApi } from './api/client'
 import type { UpdateStatus } from '../../shared/types'
@@ -35,6 +36,7 @@ export default function App(): JSX.Element {
         {view === 'dashboard' && <DashboardView />}
         {view === 'accounts' && <AccountsView />}
         {view === 'tradeLog' && <TradeLogView />}
+        {view === 'calendar' && <CalendarView />}
       </main>
     </div>
   )
