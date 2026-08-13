@@ -72,10 +72,18 @@ describe('registerHandlers', () => {
       [
         'accounts:create',
         'accounts:list',
+        'journalEntries:getByDate',
+        'journalEntries:list',
+        'journalEntries:upsert',
+        'journalTemplates:create',
+        'journalTemplates:delete',
+        'journalTemplates:list',
+        'journalTemplates:update',
         'ruleProfiles:create',
         'ruleStatus:get',
         'tags:getOrCreate',
         'trades:create',
+        'trades:listAll',
         'trades:listForAccount'
       ].sort()
     )
