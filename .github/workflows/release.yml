@@ -22,7 +22,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          # better-sqlite3's prebuilt binaries don't cover every Node 20.x
+          # patch version, which forces a from-source compile that fails on
+          # GitHub's Windows runners (node-gyp can't locate a usable Visual
+          # Studio install there). Node 22 has full prebuild coverage.
+          node-version: 22
       - run: npm ci
       - run: npm run publish
         env:
