@@ -14,9 +14,13 @@ export function TradeRow({ trade, onChanged, onError }: TradeRowProps): JSX.Elem
   const [executionNotes, setExecutionNotes] = useState(trade.executionNotes ?? '')
   const [lessonsLearned, setLessonsLearned] = useState(trade.lessonsLearned ?? '')
   const [brainstorm, setBrainstorm] = useState(trade.brainstorm ?? '')
+  const [pnl, setPnl] = useState(String(trade.pnl))
 
   async function handleSave(): Promise<void> {
+    const parsedPnl = Number(pnl)
     const updates: UpdateTradeReflection = {
+      // Guard against a blank/garbage field silently writing NaN over a real P&L.
+      pnl: Number.isFinite(parsedPnl) && pnl.trim() !== '' ? parsedPnl : trade.pnl,
       setupThesis: setupThesis.trim() || null,
       executionNotes: executionNotes.trim() || null,
       lessonsLearned: lessonsLearned.trim() || null,
@@ -111,6 +115,18 @@ export function TradeRow({ trade, onChanged, onError }: TradeRowProps): JSX.Elem
                   id={`brainstorm-${trade.id}`}
                   value={brainstorm}
                   onChange={(e) => setBrainstorm(e.target.value)}
+                />
+              </div>
+              <div className="field">
+                <label className="field-label" htmlFor={`pnl-${trade.id}`}>
+                  P&amp;L ($)
+                </label>
+                <input
+                  id={`pnl-${trade.id}`}
+                  type="number"
+                  step="0.01"
+                  value={pnl}
+                  onChange={(e) => setPnl(e.target.value)}
                 />
               </div>
               <button type="button" className="trade-row-save" onClick={() => void handleSave()}>

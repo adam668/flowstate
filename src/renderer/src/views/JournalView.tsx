@@ -24,6 +24,9 @@ export function JournalView(): JSX.Element {
   const [search, setSearch] = useState('')
   const [selectedDate, setSelectedDate] = useState<string>(() => toLocalDateString(new Date()))
   const [activeEditor, setActiveEditor] = useState<BlockNoteEditor | null>(null)
+  // Bumped on delete so the editor remounts and re-fetches — otherwise its
+  // in-memory copy of the deleted entry would be autosaved straight back.
+  const [entryRefreshKey, setEntryRefreshKey] = useState(0)
   const [error, setError] = useState<string | null>(null)
   // Electron's renderer has no `window.prompt` (it is a permanent, documented
   // limitation), so naming is done with inline controlled inputs instead.
@@ -130,6 +133,7 @@ export function JournalView(): JSX.Element {
     try {
       await flowStateApi.journalEntries.delete(date)
       refreshEntries()
+      setEntryRefreshKey((k) => k + 1)
     } catch (err) {
       setError(`Could not delete journal entry: ${err instanceof Error ? err.message : String(err)}`)
     }
@@ -267,7 +271,7 @@ export function JournalView(): JSX.Element {
       </aside>
       <div className="journal-editor-pane">
         <JournalEntryEditor
-          key={selectedDate}
+          key={`${selectedDate}-${entryRefreshKey}`}
           date={selectedDate}
           onEditorReady={setActiveEditor}
           onSaved={refreshEntries}

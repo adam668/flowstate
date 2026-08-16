@@ -63,6 +63,12 @@ describe('applySchema migration idempotency', () => {
     expect(beforeMigration.notes).toBe('Original freeform notes')
     expect(beforeMigration.execution_notes).toBeNull()
 
+    // The backfill is gated on the `user_version` pragma, and createConnection
+    // already stamped it to 1 against the (then empty) table. Reset it to 0 so
+    // this db looks like a genuine pre-migration file that has never been
+    // backfilled.
+    db.pragma('user_version = 0')
+
     // Simulate the app restarting: applySchema runs again against a db that
     // already has the new columns and now has a row needing backfill.
     expect(() => applySchema(db)).not.toThrow()
@@ -90,5 +96,78 @@ describe('applySchema migration idempotency', () => {
       .get(tradeId) as { notes: string; execution_notes: string | null }
     expect(afterThirdRun.execution_notes).toBe('Edited after migration')
     expect(afterThirdRun.notes).toBe('Original freeform notes')
+  })
+
+  it('does not resurrect legacy notes after the user clears execution_notes and restarts', () => {
+    const db = createConnection(':memory:')
+
+    const profile = createRuleProfile(db, {
+      name: 'Apex 150K',
+      drawdownType: 'trailing',
+      drawdownAmount: 5000,
+      dailyLossLimit: 2500,
+      consistencyPercent: null,
+      minTradingDays: null,
+      profitTarget: 9000
+    })
+    const accountId = createAccount(db, {
+      firmName: 'Apex',
+      accountName: '150K Eval #3',
+      startingBalance: 150000,
+      currency: 'USD',
+      status: 'evaluation',
+      ruleProfileId: profile.id
+    }).id
+
+    // A legacy-shaped row: `notes` populated, `execution_notes` NULL.
+    const info = db
+      .prepare(
+        `
+      INSERT INTO trades
+        (account_id, instrument, side, entry_price, exit_price, entry_time, exit_time, size, pnl, notes, screenshot_paths)
+      VALUES
+        (?, 'NQ', 'short', 18000, 17950, '2026-08-12T13:35:00Z', '2026-08-12T13:50:00Z', 1, 50, 'Legacy blob', '[]')
+    `
+      )
+      .run(accountId)
+    const tradeId = Number(info.lastInsertRowid)
+
+    // Make the db look like a real pre-migration file (never backfilled).
+    db.pragma('user_version = 0')
+
+    // First real migration run: the backfill copies notes across.
+    applySchema(db)
+    expect(
+      (
+        db.prepare('SELECT execution_notes FROM trades WHERE id = ?').get(tradeId) as {
+          execution_notes: string | null
+        }
+      ).execution_notes
+    ).toBe('Legacy blob')
+
+    // The user deliberately clears the Execution Notes field in the app —
+    // TradeRow saves `executionNotes.trim() || null`, i.e. NULL.
+    db.prepare('UPDATE trades SET execution_notes = NULL WHERE id = ?').run(tradeId)
+
+    // App restart: applySchema runs again. The version guard must prevent the
+    // legacy `notes` blob from being copied back in over the user's clear.
+    expect(() => applySchema(db)).not.toThrow()
+
+    const afterRestart = db
+      .prepare('SELECT notes, execution_notes FROM trades WHERE id = ?')
+      .get(tradeId) as { notes: string; execution_notes: string | null }
+    expect(afterRestart.execution_notes).toBeNull()
+    expect(afterRestart.notes).toBe('Legacy blob')
+
+    // And the same holds for an empty-string clear across another restart.
+    db.prepare("UPDATE trades SET execution_notes = '' WHERE id = ?").run(tradeId)
+    applySchema(db)
+    expect(
+      (
+        db.prepare('SELECT execution_notes FROM trades WHERE id = ?').get(tradeId) as {
+          execution_notes: string | null
+        }
+      ).execution_notes
+    ).toBe('')
   })
 })

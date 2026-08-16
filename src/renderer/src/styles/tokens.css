@@ -304,7 +304,7 @@ button.sidebar-item {
 .journal-template-item { display: flex; align-items: center; justify-content: space-between; gap: 4px; }
 .journal-template-item > button:first-child { flex: 1; text-align: left; background: none; border: none; padding: 4px 8px; font-family: var(--sans); font-size: 12px; color: var(--text-secondary); cursor: pointer; }
 .journal-template-delete { background: none; border: none; color: var(--text-muted); font-size: 14px; cursor: pointer; padding: 0 4px; }
-.journal-template-delete:hover { color: var(--pnl-neg); }
+.journal-template-delete:hover { color: var(--accent); }
 .journal-template-rename { background: none; border: none; color: var(--text-muted); font-size: 12px; cursor: pointer; padding: 0 4px; }
 .journal-template-rename:hover { color: var(--accent); }
 .journal-template-name-form { display: flex; align-items: center; gap: 4px; }
@@ -328,11 +328,13 @@ button.sidebar-item {
 .trade-row-actions { display: flex; gap: 4px; }
 .trade-row-expand, .trade-row-delete { background: none; border: none; color: var(--text-muted); font-size: 13px; cursor: pointer; padding: 2px 4px; transition: color 120ms ease; }
 .trade-row-expand:hover { color: var(--text-primary); }
-.trade-row-delete:hover { color: var(--pnl-neg); }
+.trade-row-delete:hover { color: var(--accent); }
 .trade-row-detail td { padding: 12px; background: var(--surface-1); border-bottom: 1px solid var(--border-soft); }
 .trade-row-fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
 .trade-row-fields .field { display: flex; flex-direction: column; gap: 4px; }
 .trade-row-fields .field-label { font-family: var(--mono); font-size: 10px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.06em; }
 .trade-row-fields textarea { background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; font-family: var(--sans); font-size: 13px; color: var(--text-primary); resize: vertical; min-height: 60px; }
 .trade-row-fields textarea:focus { outline: none; border-color: var(--accent); }
+.trade-row-fields input { background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; font-family: var(--mono); font-size: 13px; font-variant-numeric: tabular-nums; color: var(--text-primary); }
+.trade-row-fields input:focus { outline: none; border-color: var(--accent); }
 .trade-row-save { grid-column: span 2; justify-self: start; background: var(--accent); border: none; border-radius: 6px; padding: 8px 16px; font-family: var(--sans); font-size: 13px; font-weight: 500; color: var(--bg); cursor: pointer; }

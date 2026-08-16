@@ -3,6 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 const listEntriesMock = vi.fn()
+const deleteEntryMock = vi.fn()
 const listTemplatesMock = vi.fn()
 const deleteTemplateMock = vi.fn()
 const createTemplateMock = vi.fn()
@@ -10,7 +11,10 @@ const updateTemplateMock = vi.fn()
 
 vi.mock('../api/client', () => ({
   flowStateApi: {
-    journalEntries: { list: (...a: unknown[]) => listEntriesMock(...a) },
+    journalEntries: {
+      list: (...a: unknown[]) => listEntriesMock(...a),
+      delete: (...a: unknown[]) => deleteEntryMock(...a)
+    },
     journalTemplates: {
       list: (...a: unknown[]) => listTemplatesMock(...a),
       create: (...a: unknown[]) => createTemplateMock(...a),
@@ -21,6 +25,7 @@ vi.mock('../api/client', () => ({
 }))
 
 const insertBlocksMock = vi.fn()
+const editorMountMock = vi.fn()
 const fakeEditor = {
   document: [{ id: 'existing', type: 'paragraph' }],
   insertBlocks: (...a: unknown[]) => insertBlocksMock(...a)
@@ -35,6 +40,7 @@ vi.mock('./JournalEntryEditor', () => ({
     onEditorReady?: (editor: unknown) => void
   }) => {
     useEffect(() => {
+      editorMountMock(date)
       onEditorReady?.(fakeEditor)
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
@@ -72,6 +78,7 @@ describe('JournalView', () => {
       }
     ])
     deleteTemplateMock.mockResolvedValue(undefined)
+    deleteEntryMock.mockResolvedValue(undefined)
     createTemplateMock.mockResolvedValue({})
     updateTemplateMock.mockResolvedValue({})
   })
@@ -131,6 +138,38 @@ describe('JournalView', () => {
       fakeEditor.document[fakeEditor.document.length - 1],
       'after'
     )
+  })
+
+  it('deletes a journal entry after confirmation', async () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+    render(<JournalView />)
+    await screen.findByText('2026-08-10')
+
+    fireEvent.click(screen.getByLabelText('Delete journal entry 2026-08-10'))
+
+    await waitFor(() => expect(deleteEntryMock).toHaveBeenCalledWith('2026-08-10'))
+  })
+
+  it('does not delete a journal entry when the user cancels the confirm', async () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(false)
+    render(<JournalView />)
+    await screen.findByText('2026-08-10')
+
+    fireEvent.click(screen.getByLabelText('Delete journal entry 2026-08-10'))
+
+    await waitFor(() => expect(window.confirm).toHaveBeenCalled())
+    expect(deleteEntryMock).not.toHaveBeenCalled()
+  })
+
+  it('remounts the entry editor after a delete so stale content is not autosaved back', async () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+    render(<JournalView />)
+    await screen.findByText('2026-08-10')
+    const mountsBefore = editorMountMock.mock.calls.length
+
+    fireEvent.click(screen.getByLabelText('Delete journal entry 2026-08-10'))
+
+    await waitFor(() => expect(editorMountMock.mock.calls.length).toBeGreaterThan(mountsBefore))
   })
 
   it('deletes a template after confirmation', async () => {

@@ -92,12 +92,18 @@ function migrateTradesTable(db: Database.Database): void {
   }
 
   // One-time backfill: carry forward any existing freeform notes into
-  // execution_notes. The WHERE clause makes this idempotent — once a row's
-  // execution_notes is populated, re-running this never touches it again.
-  db.exec(`
-    UPDATE trades
-    SET execution_notes = notes
-    WHERE notes IS NOT NULL AND notes != ''
-      AND (execution_notes IS NULL OR execution_notes = '')
-  `)
+  // execution_notes. This is gated on SQLite's `user_version` pragma rather
+  // than on row state — a state-based guard would re-copy `notes` back in
+  // every time the app restarts after a user deliberately cleared their
+  // Execution Notes, silently resurrecting the legacy blob forever.
+  const currentVersion = db.pragma('user_version', { simple: true }) as number
+  if (currentVersion < 1) {
+    db.exec(`
+      UPDATE trades
+      SET execution_notes = notes
+      WHERE notes IS NOT NULL AND notes != ''
+        AND (execution_notes IS NULL OR execution_notes = '')
+    `)
+    db.pragma('user_version = 1')
+  }
 }
