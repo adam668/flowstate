@@ -15,7 +15,10 @@ function trade(overrides: Partial<Trade>): Trade {
     size: 1,
     pnl: 0,
     rMultiple: null,
-    notes: null,
+    setupThesis: null,
+    executionNotes: null,
+    lessonsLearned: null,
+    brainstorm: null,
     screenshotPaths: [],
     tagIds: [],
     ...overrides

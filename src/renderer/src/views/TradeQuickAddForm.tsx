@@ -14,6 +14,7 @@ export function TradeQuickAddForm({ accountId, onCreated }: TradeQuickAddFormPro
   const [size, setSize] = useState('1')
   const [entryPrice, setEntryPrice] = useState('')
   const [exitPrice, setExitPrice] = useState('')
+  const [pnl, setPnl] = useState('')
   const [error, setError] = useState<string | null>(null)
 
   async function handleSubmit(e: React.FormEvent): Promise<void> {
@@ -30,14 +31,19 @@ export function TradeQuickAddForm({ accountId, onCreated }: TradeQuickAddFormPro
         entryTime: now,
         exitTime: now,
         size: Number(size),
+        pnl: Number(pnl),
         rMultiple: null,
-        notes: null,
+        setupThesis: null,
+        executionNotes: null,
+        lessonsLearned: null,
+        brainstorm: null,
         screenshotPaths: [],
         tagIds: []
       })
       setInstrument('')
       setEntryPrice('')
       setExitPrice('')
+      setPnl('')
       onCreated()
     } catch (err) {
       setError(`Could not log trade: ${err instanceof Error ? err.message : String(err)}`)
@@ -79,6 +85,14 @@ export function TradeQuickAddForm({ accountId, onCreated }: TradeQuickAddFormPro
         placeholder="Exit"
         value={exitPrice}
         onChange={(e) => setExitPrice(e.target.value)}
+        required
+      />
+      <input
+        type="number"
+        step="0.01"
+        placeholder="P&L"
+        value={pnl}
+        onChange={(e) => setPnl(e.target.value)}
         required
       />
       <button type="submit">Log trade</button>

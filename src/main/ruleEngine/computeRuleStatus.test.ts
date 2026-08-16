@@ -37,7 +37,10 @@ function trade(pnl: number, entryTime: string): Trade {
     size: 1,
     pnl,
     rMultiple: null,
-    notes: null,
+    setupThesis: null,
+    executionNotes: null,
+    lessonsLearned: null,
+    brainstorm: null,
     screenshotPaths: [],
     tagIds: []
   }
@@ -147,7 +150,10 @@ describe('computeRuleStatus', () => {
         size: 1,
         pnl: -500,
         rMultiple: null,
-        notes: null,
+        setupThesis: null,
+        executionNotes: null,
+        lessonsLearned: null,
+        brainstorm: null,
         screenshotPaths: [],
         tagIds: []
       }

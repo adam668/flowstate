@@ -71,4 +71,33 @@ export function applySchema(db: Database.Database): void {
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
   `)
+
+  migrateTradesTable(db)
+}
+
+function migrateTradesTable(db: Database.Database): void {
+  const columns = db.prepare('PRAGMA table_info(trades)').all() as { name: string }[]
+  const columnNames = new Set(columns.map((c) => c.name))
+
+  const newColumns: [string, string][] = [
+    ['setup_thesis', 'TEXT'],
+    ['execution_notes', 'TEXT'],
+    ['lessons_learned', 'TEXT'],
+    ['brainstorm', 'TEXT']
+  ]
+  for (const [name, type] of newColumns) {
+    if (!columnNames.has(name)) {
+      db.exec(`ALTER TABLE trades ADD COLUMN ${name} ${type}`)
+    }
+  }
+
+  // One-time backfill: carry forward any existing freeform notes into
+  // execution_notes. The WHERE clause makes this idempotent — once a row's
+  // execution_notes is populated, re-running this never touches it again.
+  db.exec(`
+    UPDATE trades
+    SET execution_notes = notes
+    WHERE notes IS NOT NULL AND notes != ''
+      AND (execution_notes IS NULL OR execution_notes = '')
+  `)
 }

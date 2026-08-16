@@ -101,8 +101,12 @@ describe('registerHandlers', () => {
       entryTime: now.toISOString(),
       exitTime: now.toISOString(),
       size: 1,
+      pnl: -10,
       rMultiple: null,
-      notes: null,
+      setupThesis: null,
+      executionNotes: null,
+      lessonsLearned: null,
+      brainstorm: null,
       screenshotPaths: [],
       tagIds: []
     })
@@ -126,8 +130,12 @@ describe('registerHandlers', () => {
       entryTime: twoDaysAgo.toISOString(),
       exitTime: twoDaysAgo.toISOString(),
       size: 1,
+      pnl: -10,
       rMultiple: null,
-      notes: null,
+      setupThesis: null,
+      executionNotes: null,
+      lessonsLearned: null,
+      brainstorm: null,
       screenshotPaths: [],
       tagIds: []
     })

@@ -42,9 +42,22 @@ export interface Trade {
   size: number
   pnl: number
   rMultiple: number | null
-  notes: string | null
+  setupThesis: string | null
+  executionNotes: string | null
+  lessonsLearned: string | null
+  brainstorm: string | null
   screenshotPaths: string[]
   tagIds: number[]
+}
+
+export type NewTrade = Omit<Trade, 'id'>
+
+export interface UpdateTradeReflection {
+  pnl?: number
+  setupThesis?: string | null
+  executionNotes?: string | null
+  lessonsLearned?: string | null
+  brainstorm?: string | null
 }
 
 export interface RuleStatus {
@@ -65,8 +78,6 @@ export interface RuleStatus {
 
 export type NewAccount = Omit<Account, 'id' | 'createdAt'>
 export type NewRuleProfile = Omit<RuleProfile, 'id'>
-export type NewTrade = Omit<Trade, 'id' | 'pnl'>
-
 export type UpdateStatus =
   | { state: 'checking' }
   | { state: 'available'; version: string }
