@@ -32,3 +32,37 @@ export function getAccount(db: Database.Database, id: number): Account | undefin
   const row = db.prepare('SELECT * FROM accounts WHERE id = ?').get(id)
   return row ? toAccount(row) : undefined
 }
+
+export function deleteAccount(
+  db: Database.Database,
+  id: number,
+  options: { withTrades: boolean }
+): void {
+  const account = getAccount(db, id)
+  if (!account) throw new Error(`Account ${id} not found`)
+
+  const tradeCount = (
+    db.prepare('SELECT COUNT(*) as count FROM trades WHERE account_id = ?').get(id) as {
+      count: number
+    }
+  ).count
+
+  if (tradeCount > 0 && !options.withTrades) {
+    throw new Error(
+      `Account ${id} has ${tradeCount} trade(s); pass withTrades: true to delete them too`
+    )
+  }
+
+  const runInTransaction = db.transaction(() => {
+    const tradeIds = (
+      db.prepare('SELECT id FROM trades WHERE account_id = ?').all(id) as { id: number }[]
+    ).map((row) => row.id)
+    for (const tradeId of tradeIds) {
+      db.prepare('DELETE FROM trade_tags WHERE trade_id = ?').run(tradeId)
+    }
+    db.prepare('DELETE FROM trades WHERE account_id = ?').run(id)
+    db.prepare('DELETE FROM accounts WHERE id = ?').run(id)
+    db.prepare('DELETE FROM rule_profiles WHERE id = ?').run(account.ruleProfileId)
+  })
+  runInTransaction()
+}
