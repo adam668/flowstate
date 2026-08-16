@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          # Matches release.yml — better-sqlite3 prebuilds don't cover every
+          # Node 20.x patch version, forcing a from-source compile that can
+          # fail on hosted runners. Node 22 has full prebuild coverage.
+          node-version: 22
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test -- run
+      - run: npm run build
