@@ -125,6 +125,16 @@ export function JournalView(): JSX.Element {
     }
   }
 
+  async function handleDeleteEntry(date: string): Promise<void> {
+    if (!window.confirm('Delete this journal entry? This cannot be undone.')) return
+    try {
+      await flowStateApi.journalEntries.delete(date)
+      refreshEntries()
+    } catch (err) {
+      setError(`Could not delete journal entry: ${err instanceof Error ? err.message : String(err)}`)
+    }
+  }
+
   return (
     <div className="journal-view">
       {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
@@ -155,6 +165,14 @@ export function JournalView(): JSX.Element {
                 onClick={() => setSelectedDate(entry.date)}
               >
                 {entry.date}
+              </button>
+              <button
+                type="button"
+                className="journal-entry-delete"
+                onClick={() => handleDeleteEntry(entry.date)}
+                aria-label={`Delete journal entry ${entry.date}`}
+              >
+                ×
               </button>
             </li>
           ))}

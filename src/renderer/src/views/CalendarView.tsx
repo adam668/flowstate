@@ -21,6 +21,7 @@ export function CalendarView(): JSX.Element {
   })
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [entryRefreshKey, setEntryRefreshKey] = useState(0)
 
   useEffect(() => {
     flowStateApi.trades
@@ -51,6 +52,16 @@ export function CalendarView(): JSX.Element {
   ]
 
   const monthLabel = firstOfMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+
+  async function handleDeleteEntry(date: string): Promise<void> {
+    if (!window.confirm('Delete this journal entry? This cannot be undone.')) return
+    try {
+      await flowStateApi.journalEntries.delete(date)
+      setEntryRefreshKey((k) => k + 1)
+    } catch (err) {
+      setError(`Could not delete journal entry: ${err instanceof Error ? err.message : String(err)}`)
+    }
+  }
 
   return (
     <div className="calendar-view">
@@ -112,8 +123,17 @@ export function CalendarView(): JSX.Element {
       </div>
       {selectedDate && (
         <div className="calendar-entry-panel">
-          <h3 className="calendar-entry-heading">{selectedDate}</h3>
-          <JournalEntryEditor date={selectedDate} />
+          <div className="calendar-entry-panel-header">
+            <h3 className="calendar-entry-heading">{selectedDate}</h3>
+            <button
+              type="button"
+              className="calendar-entry-delete"
+              onClick={() => handleDeleteEntry(selectedDate)}
+            >
+              Delete entry
+            </button>
+          </div>
+          <JournalEntryEditor date={selectedDate} key={`${selectedDate}-${entryRefreshKey}`} />
         </div>
       )}
     </div>
