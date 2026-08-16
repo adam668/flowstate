@@ -147,4 +147,30 @@ describe('trades.repo', () => {
   it('throws for an unknown trade id', () => {
     expect(() => updateTradeReflection(db, 999, { pnl: 10 })).toThrow('Trade 999 not found')
   })
+
+  it('updates rMultiple independently of the other reflection fields', () => {
+    const trade = createTrade(db, {
+      accountId,
+      instrument: 'ES',
+      side: 'long',
+      entryPrice: 5000,
+      exitPrice: 5010,
+      entryTime: '2026-08-11T13:35:00Z',
+      exitTime: '2026-08-11T13:50:00Z',
+      size: 2,
+      pnl: 20,
+      rMultiple: null,
+      setupThesis: null,
+      executionNotes: null,
+      lessonsLearned: null,
+      brainstorm: null,
+      screenshotPaths: [],
+      tagIds: []
+    })
+
+    const updated = updateTradeReflection(db, trade.id, { rMultiple: 2.5 })
+
+    expect(updated.rMultiple).toBe(2.5)
+    expect(updated.pnl).toBe(20)
+  })
 })

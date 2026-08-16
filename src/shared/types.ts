@@ -54,6 +54,7 @@ export type NewTrade = Omit<Trade, 'id'>
 
 export interface UpdateTradeReflection {
   pnl?: number
+  rMultiple?: number | null
   setupThesis?: string | null
   executionNotes?: string | null
   lessonsLearned?: string | null

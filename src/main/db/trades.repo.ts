@@ -96,6 +96,7 @@ export function updateTradeReflection(
   if (!existing) throw new Error(`Trade ${id} not found`)
 
   const pnl = updates.pnl ?? existing.pnl
+  const rMultiple = updates.rMultiple !== undefined ? updates.rMultiple : existing.r_multiple
   const setupThesis = updates.setupThesis !== undefined ? updates.setupThesis : existing.setup_thesis
   const executionNotes =
     updates.executionNotes !== undefined ? updates.executionNotes : existing.execution_notes
@@ -106,10 +107,10 @@ export function updateTradeReflection(
   db.prepare(
     `
     UPDATE trades
-    SET pnl = ?, setup_thesis = ?, execution_notes = ?, lessons_learned = ?, brainstorm = ?
+    SET pnl = ?, r_multiple = ?, setup_thesis = ?, execution_notes = ?, lessons_learned = ?, brainstorm = ?
     WHERE id = ?
   `
-  ).run(pnl, setupThesis, executionNotes, lessonsLearned, brainstorm, id)
+  ).run(pnl, rMultiple, setupThesis, executionNotes, lessonsLearned, brainstorm, id)
 
   return toTrade(db, db.prepare('SELECT * FROM trades WHERE id = ?').get(id))
 }

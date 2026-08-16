@@ -15,12 +15,15 @@ export function TradeRow({ trade, onChanged, onError }: TradeRowProps): JSX.Elem
   const [lessonsLearned, setLessonsLearned] = useState(trade.lessonsLearned ?? '')
   const [brainstorm, setBrainstorm] = useState(trade.brainstorm ?? '')
   const [pnl, setPnl] = useState(String(trade.pnl))
+  const [rMultiple, setRMultiple] = useState(trade.rMultiple === null ? '' : String(trade.rMultiple))
 
   async function handleSave(): Promise<void> {
     const parsedPnl = Number(pnl)
+    const parsedRMultiple = Number(rMultiple)
     const updates: UpdateTradeReflection = {
       // Guard against a blank/garbage field silently writing NaN over a real P&L.
       pnl: Number.isFinite(parsedPnl) && pnl.trim() !== '' ? parsedPnl : trade.pnl,
+      rMultiple: Number.isFinite(parsedRMultiple) && rMultiple.trim() !== '' ? parsedRMultiple : null,
       setupThesis: setupThesis.trim() || null,
       executionNotes: executionNotes.trim() || null,
       lessonsLearned: lessonsLearned.trim() || null,
@@ -127,6 +130,18 @@ export function TradeRow({ trade, onChanged, onError }: TradeRowProps): JSX.Elem
                   step="0.01"
                   value={pnl}
                   onChange={(e) => setPnl(e.target.value)}
+                />
+              </div>
+              <div className="field">
+                <label className="field-label" htmlFor={`r-multiple-${trade.id}`}>
+                  R-Multiple
+                </label>
+                <input
+                  id={`r-multiple-${trade.id}`}
+                  type="number"
+                  step="0.1"
+                  value={rMultiple}
+                  onChange={(e) => setRMultiple(e.target.value)}
                 />
               </div>
               <button type="button" className="trade-row-save" onClick={() => void handleSave()}>

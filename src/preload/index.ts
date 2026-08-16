@@ -42,7 +42,8 @@ const api = {
       ipcRenderer.invoke('trades:update', id, updates)
   },
   tags: {
-    getOrCreate: (name: string): Promise<Tag> => ipcRenderer.invoke('tags:getOrCreate', name)
+    getOrCreate: (name: string): Promise<Tag> => ipcRenderer.invoke('tags:getOrCreate', name),
+    list: (): Promise<Tag[]> => ipcRenderer.invoke('tags:list')
   },
   ruleStatus: {
     get: (accountId: number): Promise<RuleStatus> =>

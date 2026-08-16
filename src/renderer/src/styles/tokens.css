@@ -338,3 +338,11 @@ button.sidebar-item {
 .trade-row-fields input { background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; font-family: var(--mono); font-size: 13px; font-variant-numeric: tabular-nums; color: var(--text-primary); }
 .trade-row-fields input:focus { outline: none; border-color: var(--accent); }
 .trade-row-save { grid-column: span 2; justify-self: start; background: var(--accent); border: none; border-radius: 6px; padding: 8px 16px; font-family: var(--sans); font-size: 13px; font-weight: 500; color: var(--bg); cursor: pointer; }
+
+.analytics-view { display: flex; flex-direction: column; gap: 16px; }
+.analytics-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.analytics-card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.analytics-card.wide { grid-column: span 2; }
+.analytics-card-title { font-family: var(--mono); font-size: 11px; font-weight: 500; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.06em; }
+.analytics-chart { height: 220px; }
+.analytics-empty { margin: 0; font-size: 12px; color: var(--text-muted); }

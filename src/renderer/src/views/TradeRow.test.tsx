@@ -88,9 +88,32 @@ describe('TradeRow', () => {
     await waitFor(() =>
       expect(updateTradeMock).toHaveBeenCalledWith(42, {
         pnl: -80.25,
+        rMultiple: null,
         setupThesis: null,
         executionNotes: null,
         lessonsLearned: 'Sized too big',
+        brainstorm: null
+      })
+    )
+  })
+
+  it('sends an edited R-multiple along with the reflection fields on save', async () => {
+    renderRow()
+
+    fireEvent.click(screen.getByLabelText('Expand trade details'))
+
+    const rMultipleInput = screen.getByLabelText('R-Multiple') as HTMLInputElement
+    expect(rMultipleInput.value).toBe('')
+    fireEvent.change(rMultipleInput, { target: { value: '2.5' } })
+    fireEvent.click(screen.getByText('Save notes'))
+
+    await waitFor(() =>
+      expect(updateTradeMock).toHaveBeenCalledWith(42, {
+        pnl: 125.5,
+        rMultiple: 2.5,
+        setupThesis: null,
+        executionNotes: null,
+        lessonsLearned: null,
         brainstorm: null
       })
     )

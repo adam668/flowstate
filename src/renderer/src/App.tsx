@@ -5,6 +5,7 @@ import { AccountsView } from './views/AccountsView'
 import { TradeLogView } from './views/TradeLogView'
 import { CalendarView } from './views/CalendarView'
 import { JournalView } from './views/JournalView'
+import { AnalyticsView } from './views/AnalyticsView'
 import { UpdateBanner } from './components/UpdateBanner'
 import { flowStateApi } from './api/client'
 import type { UpdateStatus } from '../../shared/types'
@@ -39,6 +40,7 @@ export default function App(): JSX.Element {
         {view === 'tradeLog' && <TradeLogView />}
         {view === 'calendar' && <CalendarView />}
         {view === 'journal' && <JournalView />}
+        {view === 'analytics' && <AnalyticsView />}
       </main>
     </div>
   )

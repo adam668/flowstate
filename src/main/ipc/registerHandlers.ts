@@ -9,7 +9,7 @@ import {
   deleteTrade,
   updateTradeReflection
 } from '../db/trades.repo'
-import { getOrCreateTag } from '../db/tags.repo'
+import { getOrCreateTag, listTags } from '../db/tags.repo'
 import { computeRuleStatus } from '../ruleEngine/computeRuleStatus'
 import {
   getJournalEntryByDate,
@@ -57,6 +57,7 @@ export function registerHandlers(db: Database.Database): void {
   )
 
   ipcMain.handle('tags:getOrCreate', (_e, name: string) => getOrCreateTag(db, name))
+  ipcMain.handle('tags:list', () => listTags(db))
 
   ipcMain.handle('ruleStatus:get', (_e, accountId: number) => {
     const account = getAccount(db, accountId)

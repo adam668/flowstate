@@ -84,6 +84,7 @@ describe('registerHandlers', () => {
         'ruleProfiles:create',
         'ruleStatus:get',
         'tags:getOrCreate',
+        'tags:list',
         'trades:create',
         'trades:delete',
         'trades:listAll',

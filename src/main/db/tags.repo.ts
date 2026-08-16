@@ -10,3 +10,7 @@ export function getOrCreateTag(db: Database.Database, name: string): Tag {
   const info = db.prepare('INSERT INTO tags (name) VALUES (?)').run(name)
   return { id: Number(info.lastInsertRowid), name }
 }
+
+export function listTags(db: Database.Database): Tag[] {
+  return db.prepare('SELECT * FROM tags ORDER BY name ASC').all() as Tag[]
+}
