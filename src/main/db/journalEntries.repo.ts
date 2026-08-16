@@ -34,3 +34,7 @@ export function listJournalEntries(db: Database.Database): JournalEntry[] {
   const rows = db.prepare('SELECT * FROM journal_entries ORDER BY date DESC').all()
   return rows.map(toJournalEntry)
 }
+
+export function deleteJournalEntry(db: Database.Database, date: string): void {
+  db.prepare('DELETE FROM journal_entries WHERE date = ?').run(date)
+}

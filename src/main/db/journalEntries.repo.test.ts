@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import type Database from 'better-sqlite3'
 import { createConnection } from './connection'
-import { getJournalEntryByDate, upsertJournalEntry, listJournalEntries } from './journalEntries.repo'
+import { getJournalEntryByDate, upsertJournalEntry, listJournalEntries, deleteJournalEntry } from './journalEntries.repo'
 
 describe('journalEntries.repo', () => {
   let db: Database.Database
@@ -33,5 +33,18 @@ describe('journalEntries.repo', () => {
     upsertJournalEntry(db, { date: '2026-08-13', content: '[]' })
     const entries = listJournalEntries(db)
     expect(entries.map((e) => e.date)).toEqual(['2026-08-13', '2026-08-01'])
+  })
+
+  it('deletes an entry by date', () => {
+    upsertJournalEntry(db, { date: '2026-08-13', content: '[]' })
+
+    deleteJournalEntry(db, '2026-08-13')
+
+    expect(getJournalEntryByDate(db, '2026-08-13')).toBeUndefined()
+    expect(listJournalEntries(db)).toHaveLength(0)
+  })
+
+  it('deleting a nonexistent date is a no-op, not an error', () => {
+    expect(() => deleteJournalEntry(db, '2026-01-01')).not.toThrow()
   })
 })
