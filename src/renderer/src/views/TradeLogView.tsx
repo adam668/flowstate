@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { flowStateApi } from '../api/client'
 import { TradeQuickAddForm } from './TradeQuickAddForm'
+import { TradeRow } from './TradeRow'
 import { ErrorBanner } from '../components/ErrorBanner'
 import type { Account, Trade } from '../../../shared/types'
 
@@ -76,18 +77,17 @@ export function TradeLogView(): JSX.Element {
             <th>Entry</th>
             <th>Exit</th>
             <th>P&amp;L</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           {trades.map((t) => (
-            <tr key={t.id}>
-              <td>{t.instrument}</td>
-              <td>{t.side}</td>
-              <td>{t.size}</td>
-              <td>{t.entryPrice}</td>
-              <td>{t.exitPrice}</td>
-              <td className={t.pnl >= 0 ? 'pos' : 'neg'}>{t.pnl.toFixed(2)}</td>
-            </tr>
+            <TradeRow
+              key={t.id}
+              trade={t}
+              onChanged={() => selectedAccountId !== null && refreshTrades(selectedAccountId)}
+              onError={setError}
+            />
           ))}
         </tbody>
       </table>
