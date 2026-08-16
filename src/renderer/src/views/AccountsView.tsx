@@ -28,6 +28,21 @@ export function AccountsView(): JSX.Element {
     refresh()
   }, [])
 
+  async function handleDeleteAccount(account: Account): Promise<void> {
+    try {
+      const trades = await flowStateApi.trades.listForAccount(account.id)
+      const confirmText =
+        trades.length > 0
+          ? `This account has ${trades.length} trade(s). Delete the account and all ${trades.length} trade(s)? This cannot be undone.`
+          : `Delete ${account.firmName} ${account.accountName}? This cannot be undone.`
+      if (!window.confirm(confirmText)) return
+      await flowStateApi.accounts.delete(account.id, trades.length > 0)
+      refresh()
+    } catch (err) {
+      setError(`Could not delete account: ${err instanceof Error ? err.message : String(err)}`)
+    }
+  }
+
   return (
     <div>
       <h2
@@ -48,16 +63,25 @@ export function AccountsView(): JSX.Element {
           const status = statuses[account.id]
           if (!status) return null
           return (
-            <DrawdownGauge
-              key={account.id}
-              firmLabel={`${account.firmName} · ${account.accountName}`}
-              accountLabel={
-                status.drawdownType === 'trailing' ? 'Trailing Drawdown' : 'Static Drawdown'
-              }
-              usedAmount={status.drawdownUsed}
-              limitAmount={status.drawdownAmount}
-              highWaterMark={status.highWaterMark}
-            />
+            <div key={account.id} className="account-row">
+              <DrawdownGauge
+                firmLabel={`${account.firmName} · ${account.accountName}`}
+                accountLabel={
+                  status.drawdownType === 'trailing' ? 'Trailing Drawdown' : 'Static Drawdown'
+                }
+                usedAmount={status.drawdownUsed}
+                limitAmount={status.drawdownAmount}
+                highWaterMark={status.highWaterMark}
+              />
+              <button
+                type="button"
+                className="account-delete"
+                onClick={() => handleDeleteAccount(account)}
+                aria-label={`Delete account ${account.firmName} ${account.accountName}`}
+              >
+                Delete account
+              </button>
+            </div>
           )
         })}
       </div>
