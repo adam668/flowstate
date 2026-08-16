@@ -71,7 +71,9 @@ describe('registerHandlers', () => {
     expect([...handlers.keys()].sort()).toEqual(
       [
         'accounts:create',
+        'accounts:delete',
         'accounts:list',
+        'journalEntries:delete',
         'journalEntries:getByDate',
         'journalEntries:list',
         'journalEntries:upsert',
@@ -83,8 +85,10 @@ describe('registerHandlers', () => {
         'ruleStatus:get',
         'tags:getOrCreate',
         'trades:create',
+        'trades:delete',
         'trades:listAll',
-        'trades:listForAccount'
+        'trades:listForAccount',
+        'trades:update'
       ].sort()
     )
   })

@@ -13,7 +13,8 @@ import type {
   NewJournalEntry,
   JournalTemplate,
   NewJournalTemplate,
-  UpdateJournalTemplate
+  UpdateJournalTemplate,
+  UpdateTradeReflection
 } from '../shared/types'
 
 // Every method carries an explicit return type: `ipcRenderer.invoke` returns
@@ -23,7 +24,9 @@ const api = {
   accounts: {
     list: (): Promise<Account[]> => ipcRenderer.invoke('accounts:list'),
     create: (account: NewAccount): Promise<Account> =>
-      ipcRenderer.invoke('accounts:create', account)
+      ipcRenderer.invoke('accounts:create', account),
+    delete: (id: number, withTrades: boolean): Promise<void> =>
+      ipcRenderer.invoke('accounts:delete', id, withTrades)
   },
   ruleProfiles: {
     create: (profile: NewRuleProfile): Promise<RuleProfile> =>
@@ -33,7 +36,10 @@ const api = {
     listForAccount: (accountId: number): Promise<Trade[]> =>
       ipcRenderer.invoke('trades:listForAccount', accountId),
     create: (trade: NewTrade): Promise<Trade> => ipcRenderer.invoke('trades:create', trade),
-    listAll: (): Promise<Trade[]> => ipcRenderer.invoke('trades:listAll')
+    listAll: (): Promise<Trade[]> => ipcRenderer.invoke('trades:listAll'),
+    delete: (id: number): Promise<void> => ipcRenderer.invoke('trades:delete', id),
+    update: (id: number, updates: UpdateTradeReflection): Promise<Trade> =>
+      ipcRenderer.invoke('trades:update', id, updates)
   },
   tags: {
     getOrCreate: (name: string): Promise<Tag> => ipcRenderer.invoke('tags:getOrCreate', name)
@@ -57,7 +63,8 @@ const api = {
       ipcRenderer.invoke('journalEntries:getByDate', date),
     upsert: (entry: NewJournalEntry): Promise<JournalEntry> =>
       ipcRenderer.invoke('journalEntries:upsert', entry),
-    list: (): Promise<JournalEntry[]> => ipcRenderer.invoke('journalEntries:list')
+    list: (): Promise<JournalEntry[]> => ipcRenderer.invoke('journalEntries:list'),
+    delete: (date: string): Promise<void> => ipcRenderer.invoke('journalEntries:delete', date)
   },
   journalTemplates: {
     list: (): Promise<JournalTemplate[]> => ipcRenderer.invoke('journalTemplates:list'),
