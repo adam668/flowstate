@@ -1,14 +1,15 @@
 import { useState } from 'react'
 import { flowStateApi } from '../api/client'
-import type { Trade, UpdateTradeReflection } from '../../../shared/types'
+import type { Trade, UpdateTradeReflection, Playbook } from '../../../shared/types'
 
 interface TradeRowProps {
   trade: Trade
+  playbooks: Playbook[]
   onChanged: () => void
   onError: (message: string) => void
 }
 
-export function TradeRow({ trade, onChanged, onError }: TradeRowProps): JSX.Element {
+export function TradeRow({ trade, playbooks, onChanged, onError }: TradeRowProps): JSX.Element {
   const [expanded, setExpanded] = useState(false)
   const [setupThesis, setSetupThesis] = useState(trade.setupThesis ?? '')
   const [executionNotes, setExecutionNotes] = useState(trade.executionNotes ?? '')
@@ -16,6 +17,9 @@ export function TradeRow({ trade, onChanged, onError }: TradeRowProps): JSX.Elem
   const [brainstorm, setBrainstorm] = useState(trade.brainstorm ?? '')
   const [pnl, setPnl] = useState(String(trade.pnl))
   const [rMultiple, setRMultiple] = useState(trade.rMultiple === null ? '' : String(trade.rMultiple))
+  const [playbookId, setPlaybookId] = useState(
+    trade.playbookId === null ? '' : String(trade.playbookId)
+  )
 
   async function handleSave(): Promise<void> {
     const parsedPnl = Number(pnl)
@@ -27,7 +31,8 @@ export function TradeRow({ trade, onChanged, onError }: TradeRowProps): JSX.Elem
       setupThesis: setupThesis.trim() || null,
       executionNotes: executionNotes.trim() || null,
       lessonsLearned: lessonsLearned.trim() || null,
-      brainstorm: brainstorm.trim() || null
+      brainstorm: brainstorm.trim() || null,
+      playbookId: playbookId === '' ? null : Number(playbookId)
     }
     try {
       await flowStateApi.trades.update(trade.id, updates)
@@ -143,6 +148,23 @@ export function TradeRow({ trade, onChanged, onError }: TradeRowProps): JSX.Elem
                   value={rMultiple}
                   onChange={(e) => setRMultiple(e.target.value)}
                 />
+              </div>
+              <div className="field">
+                <label className="field-label" htmlFor={`playbook-${trade.id}`}>
+                  Playbook
+                </label>
+                <select
+                  id={`playbook-${trade.id}`}
+                  value={playbookId}
+                  onChange={(e) => setPlaybookId(e.target.value)}
+                >
+                  <option value="">None</option>
+                  {playbooks.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                    </option>
+                  ))}
+                </select>
               </div>
               <button type="button" className="trade-row-save" onClick={() => void handleSave()}>
                 Save notes

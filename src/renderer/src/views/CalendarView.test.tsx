@@ -32,6 +32,7 @@ function trade(overrides: Partial<Trade>): Trade {
     brainstorm: null,
     screenshotPaths: [],
     tagIds: [],
+    playbookId: null,
     ...overrides
   }
 }

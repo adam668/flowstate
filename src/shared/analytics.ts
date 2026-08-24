@@ -1,4 +1,4 @@
-import type { Trade, Tag } from './types'
+import type { Trade, Tag, Playbook } from './types'
 
 export interface TagWinRate {
   tagName: string
@@ -67,6 +67,33 @@ export function computeWinRateByTag(trades: Trade[], tags: Tag[]): TagWinRate[] 
   }
 
   return [...byTag.values()].map((entry) => ({
+    ...entry,
+    winRate: entry.wins / (entry.wins + entry.losses)
+  }))
+}
+
+export interface PlaybookWinRate {
+  playbookName: string
+  wins: number
+  losses: number
+  winRate: number
+}
+
+export function computeWinRateByPlaybook(trades: Trade[], playbooks: Playbook[]): PlaybookWinRate[] {
+  const nameById = new Map(playbooks.map((p) => [p.id, p.name]))
+  const byPlaybook = new Map<string, PlaybookWinRate>()
+
+  for (const trade of trades) {
+    if (trade.playbookId === null) continue
+    const playbookName = nameById.get(trade.playbookId)
+    if (!playbookName) continue
+    const existing = byPlaybook.get(playbookName) ?? { playbookName, wins: 0, losses: 0, winRate: 0 }
+    if (trade.pnl > 0) existing.wins += 1
+    else existing.losses += 1
+    byPlaybook.set(playbookName, existing)
+  }
+
+  return [...byPlaybook.values()].map((entry) => ({
     ...entry,
     winRate: entry.wins / (entry.wins + entry.losses)
   }))

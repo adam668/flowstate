@@ -97,7 +97,8 @@ describe('accounts.repo', () => {
       lessonsLearned: null,
       brainstorm: null,
       screenshotPaths: [],
-      tagIds: []
+      tagIds: [],
+      playbookId: null
     })
 
     expect(() => deleteAccount(db, account.id, { withTrades: false })).toThrow(/trade/)
@@ -139,7 +140,8 @@ describe('accounts.repo', () => {
       lessonsLearned: null,
       brainstorm: null,
       screenshotPaths: [],
-      tagIds: []
+      tagIds: [],
+      playbookId: null
     })
 
     deleteAccount(db, account.id, { withTrades: true })

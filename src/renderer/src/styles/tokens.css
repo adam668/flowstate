@@ -338,6 +338,8 @@ button.sidebar-item {
 .trade-row-fields textarea:focus { outline: none; border-color: var(--accent); }
 .trade-row-fields input { background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; font-family: var(--mono); font-size: 13px; font-variant-numeric: tabular-nums; color: var(--text-primary); }
 .trade-row-fields input:focus { outline: none; border-color: var(--accent); }
+.trade-row-fields select { background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; font-family: var(--sans); font-size: 13px; color: var(--text-primary); }
+.trade-row-fields select:focus { outline: none; border-color: var(--accent); }
 .trade-row-save { grid-column: span 2; justify-self: start; background: var(--accent); border: none; border-radius: 6px; padding: 8px 16px; font-family: var(--sans); font-size: 13px; font-weight: 500; color: var(--bg); cursor: pointer; }
 
 .analytics-view { display: flex; flex-direction: column; gap: 16px; }
@@ -347,3 +349,22 @@ button.sidebar-item {
 .analytics-card-title { font-family: var(--mono); font-size: 11px; font-weight: 500; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.06em; }
 .analytics-chart { height: 220px; }
 .analytics-empty { margin: 0; font-size: 12px; color: var(--text-muted); }
+
+.dashboard-consistency-row { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 24px; }
+
+.playbooks-view { display: flex; flex-direction: column; gap: 20px; }
+.playbooks-form { display: flex; flex-direction: column; gap: 12px; background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 16px; max-width: 460px; }
+.playbooks-form .field { display: flex; flex-direction: column; gap: 6px; }
+.playbooks-form .field-label { font-family: var(--mono); font-size: 10px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.06em; }
+.playbooks-form input, .playbooks-form textarea { background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; font-family: var(--sans); font-size: 13px; color: var(--text-primary); }
+.playbooks-form input:focus, .playbooks-form textarea:focus { outline: none; border-color: var(--accent); }
+.playbooks-form input::placeholder, .playbooks-form textarea::placeholder { color: var(--text-muted); }
+.playbooks-form textarea { min-height: 70px; resize: vertical; }
+.playbooks-form .field-submit { justify-self: start; align-self: flex-start; background: var(--accent); border: none; border-radius: 6px; padding: 8px 16px; font-family: var(--sans); font-size: 13px; font-weight: 500; color: var(--bg); cursor: pointer; }
+.playbooks-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+.playbook-card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+.playbook-card-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.playbook-card-name { font-family: var(--sans); font-size: 14px; font-weight: 500; color: var(--text-primary); }
+.playbook-delete { background: none; border: none; color: var(--text-muted); font-size: 14px; cursor: pointer; padding: 0 4px; transition: color 120ms ease; }
+.playbook-delete:hover { color: var(--accent); }
+.playbook-card-criteria { margin: 8px 0 0; font-size: 12px; line-height: 1.5; color: var(--text-secondary); white-space: pre-wrap; }

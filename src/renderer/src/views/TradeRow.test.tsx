@@ -14,7 +14,7 @@ vi.mock('../api/client', () => ({
 }))
 
 import { TradeRow } from './TradeRow'
-import type { Trade } from '../../../shared/types'
+import type { Trade, Playbook } from '../../../shared/types'
 
 const sampleTrade: Trade = {
   id: 42,
@@ -33,14 +33,25 @@ const sampleTrade: Trade = {
   lessonsLearned: null,
   brainstorm: null,
   screenshotPaths: [],
-  tagIds: []
+  tagIds: [],
+  playbookId: null
 }
+
+const samplePlaybooks: Playbook[] = [
+  { id: 1, name: 'ORB Breakout', criteria: null, createdAt: '' },
+  { id: 2, name: 'Fade the Open', criteria: null, createdAt: '' }
+]
 
 function renderRow(): void {
   render(
     <table>
       <tbody>
-        <TradeRow trade={sampleTrade} onChanged={vi.fn()} onError={vi.fn()} />
+        <TradeRow
+          trade={sampleTrade}
+          playbooks={samplePlaybooks}
+          onChanged={vi.fn()}
+          onError={vi.fn()}
+        />
       </tbody>
     </table>
   )
@@ -92,7 +103,8 @@ describe('TradeRow', () => {
         setupThesis: null,
         executionNotes: null,
         lessonsLearned: 'Sized too big',
-        brainstorm: null
+        brainstorm: null,
+        playbookId: null
       })
     )
   })
@@ -114,7 +126,29 @@ describe('TradeRow', () => {
         setupThesis: null,
         executionNotes: null,
         lessonsLearned: null,
-        brainstorm: null
+        brainstorm: null,
+        playbookId: null
+      })
+    )
+  })
+
+  it('sends the selected playbook id along with the reflection fields on save', async () => {
+    renderRow()
+
+    fireEvent.click(screen.getByLabelText('Expand trade details'))
+
+    fireEvent.change(screen.getByLabelText('Playbook'), { target: { value: '2' } })
+    fireEvent.click(screen.getByText('Save notes'))
+
+    await waitFor(() =>
+      expect(updateTradeMock).toHaveBeenCalledWith(42, {
+        pnl: 125.5,
+        rMultiple: null,
+        setupThesis: null,
+        executionNotes: null,
+        lessonsLearned: null,
+        brainstorm: null,
+        playbookId: 2
       })
     )
   })

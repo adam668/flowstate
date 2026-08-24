@@ -48,6 +48,7 @@ export interface Trade {
   brainstorm: string | null
   screenshotPaths: string[]
   tagIds: number[]
+  playbookId: number | null
 }
 
 export type NewTrade = Omit<Trade, 'id'>
@@ -59,6 +60,7 @@ export interface UpdateTradeReflection {
   executionNotes?: string | null
   lessonsLearned?: string | null
   brainstorm?: string | null
+  playbookId?: number | null
 }
 
 export interface RuleStatus {
@@ -75,6 +77,9 @@ export interface RuleStatus {
   dailyLossLimit: number | null
   dailyLossRemaining: number | null
   dailyLossState: RuleState | 'n/a'
+  consistencyPercent: number | null
+  bestDayProfitPercent: number | null
+  consistencyState: RuleState | 'n/a'
 }
 
 export type NewAccount = Omit<Account, 'id' | 'createdAt'>
@@ -115,4 +120,21 @@ export interface NewJournalTemplate {
 export interface UpdateJournalTemplate {
   name?: string
   content?: string
+}
+
+export interface Playbook {
+  id: number
+  name: string
+  criteria: string | null
+  createdAt: string
+}
+
+export interface NewPlaybook {
+  name: string
+  criteria: string | null
+}
+
+export interface UpdatePlaybook {
+  name?: string
+  criteria?: string | null
 }

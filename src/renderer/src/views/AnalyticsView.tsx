@@ -4,10 +4,11 @@ import { flowStateApi } from '../api/client'
 import {
   computeWinRateByTag,
   computeWinRateByHour,
-  computeRMultipleDistribution
+  computeRMultipleDistribution,
+  computeWinRateByPlaybook
 } from '../../../shared/analytics'
 import { ErrorBanner } from '../components/ErrorBanner'
-import type { Trade, Tag } from '../../../shared/types'
+import type { Trade, Tag, Playbook } from '../../../shared/types'
 
 const AXIS_COLOR = '#5C646C'
 const TOOLTIP_STYLE = {
@@ -43,13 +44,15 @@ function AnalyticsCard({ title, isEmpty, emptyMessage, wide, children }: Analyti
 export function AnalyticsView(): JSX.Element {
   const [trades, setTrades] = useState<Trade[]>([])
   const [tags, setTags] = useState<Tag[]>([])
+  const [playbooks, setPlaybooks] = useState<Playbook[]>([])
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    Promise.all([flowStateApi.trades.listAll(), flowStateApi.tags.list()])
-      .then(([tradeList, tagList]) => {
+    Promise.all([flowStateApi.trades.listAll(), flowStateApi.tags.list(), flowStateApi.playbooks.list()])
+      .then(([tradeList, tagList, playbookList]) => {
         setTrades(tradeList)
         setTags(tagList)
+        setPlaybooks(playbookList)
       })
       .catch((err: unknown) => {
         setError(`Could not load analytics: ${err instanceof Error ? err.message : String(err)}`)
@@ -57,6 +60,10 @@ export function AnalyticsView(): JSX.Element {
   }, [])
 
   const tagWinRates = useMemo(() => computeWinRateByTag(trades, tags), [trades, tags])
+  const playbookWinRates = useMemo(
+    () => computeWinRateByPlaybook(trades, playbooks),
+    [trades, playbooks]
+  )
   const hourWinRates = useMemo(
     () =>
       computeWinRateByHour(trades)
@@ -105,6 +112,32 @@ export function AnalyticsView(): JSX.Element {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={hourWinRates} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
                 <XAxis dataKey="label" stroke={AXIS_COLOR} fontSize={10} tickLine={false} />
+                <YAxis
+                  stroke={AXIS_COLOR}
+                  fontSize={10}
+                  tickLine={false}
+                  domain={[0, 1]}
+                  tickFormatter={(v: number) => `${Math.round(v * 100)}%`}
+                />
+                <Tooltip
+                  contentStyle={TOOLTIP_STYLE}
+                  formatter={(value) => `${Math.round(Number(value) * 100)}%`}
+                />
+                <Bar dataKey="winRate" fill="#D99A3D" radius={[3, 3, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </AnalyticsCard>
+
+        <AnalyticsCard
+          title="Win Rate by Playbook"
+          isEmpty={playbookWinRates.length === 0}
+          emptyMessage="Link trades to a playbook to see which setups actually work."
+        >
+          <div className="analytics-chart">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={playbookWinRates} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+                <XAxis dataKey="playbookName" stroke={AXIS_COLOR} fontSize={10} tickLine={false} />
                 <YAxis
                   stroke={AXIS_COLOR}
                   fontSize={10}

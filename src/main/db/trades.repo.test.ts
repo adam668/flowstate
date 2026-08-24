@@ -52,7 +52,8 @@ describe('trades.repo', () => {
       lessonsLearned: null,
       brainstorm: null,
       screenshotPaths: [],
-      tagIds: [fomo.id]
+      tagIds: [fomo.id],
+      playbookId: null
     })
 
     expect(trade.pnl).toBe(17.5)
@@ -77,7 +78,8 @@ describe('trades.repo', () => {
       lessonsLearned: 'Sized too small',
       brainstorm: 'Check correlation with ES tomorrow',
       screenshotPaths: [],
-      tagIds: []
+      tagIds: [],
+      playbookId: null
     })
 
     expect(trade.executionNotes).toBe('Clean fill')
@@ -104,7 +106,8 @@ describe('trades.repo', () => {
       lessonsLearned: null,
       brainstorm: null,
       screenshotPaths: [],
-      tagIds: [fomo.id]
+      tagIds: [fomo.id],
+      playbookId: null
     })
 
     deleteTrade(db, trade.id)
@@ -131,7 +134,8 @@ describe('trades.repo', () => {
       lessonsLearned: null,
       brainstorm: null,
       screenshotPaths: [],
-      tagIds: []
+      tagIds: [],
+      playbookId: null
     })
 
     const updated = updateTradeReflection(db, trade.id, {
@@ -165,7 +169,8 @@ describe('trades.repo', () => {
       lessonsLearned: null,
       brainstorm: null,
       screenshotPaths: [],
-      tagIds: []
+      tagIds: [],
+      playbookId: null
     })
 
     const updated = updateTradeReflection(db, trade.id, { rMultiple: 2.5 })
