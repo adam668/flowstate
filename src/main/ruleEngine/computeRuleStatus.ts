@@ -1,5 +1,6 @@
 import type { Account, RuleProfile, Trade, RuleStatus, RuleState } from '../../shared/types'
 import { toLocalDateString } from '../../shared/date'
+import { computeDayAggregates } from '../../shared/calendar'
 
 const WARNING_THRESHOLD_RATIO = 0.1
 
@@ -41,6 +42,18 @@ export function computeRuleStatus(
     dailyLossState = stateFromRemaining(dailyLossRemaining, ruleProfile.dailyLossLimit)
   }
 
+  const totalProfit = runningBalance - account.startingBalance
+  let bestDayProfitPercent: number | null = null
+  let consistencyState: RuleState | 'n/a' = 'n/a'
+  if (ruleProfile.consistencyPercent !== null && totalProfit > 0) {
+    const bestDayPnl = Math.max(0, ...computeDayAggregates(accountTrades).map((d) => d.pnl))
+    bestDayProfitPercent = (bestDayPnl / totalProfit) * 100
+    consistencyState = stateFromRemaining(
+      ruleProfile.consistencyPercent - bestDayProfitPercent,
+      ruleProfile.consistencyPercent
+    )
+  }
+
   return {
     accountId: account.id,
     highWaterMark,
@@ -54,6 +67,9 @@ export function computeRuleStatus(
     todayPnl,
     dailyLossLimit: ruleProfile.dailyLossLimit,
     dailyLossRemaining,
-    dailyLossState
+    dailyLossState,
+    consistencyPercent: ruleProfile.consistencyPercent,
+    bestDayProfitPercent,
+    consistencyState
   }
 }

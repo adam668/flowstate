@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { flowStateApi } from '../api/client'
 import { RuleStatusStrip, StripItem } from '../components/RuleStatusStrip'
 import { EquityCurve } from '../components/EquityCurve'
+import { ConsistencyPanel } from '../components/ConsistencyPanel'
 import { ErrorBanner } from '../components/ErrorBanner'
 import type { Account, RuleState, RuleStatus, Trade } from '../../../shared/types'
 
@@ -40,9 +41,17 @@ export function bindingConstraint(status: RuleStatus): { state: RuleState; limit
   }
 }
 
+interface ConsistencyItem {
+  label: string
+  bestDayProfitPercent: number
+  consistencyPercent: number
+  state: RuleState
+}
+
 export function DashboardView(): JSX.Element {
   const [accounts, setAccounts] = useState<Account[]>([])
   const [stripItems, setStripItems] = useState<StripItem[]>([])
+  const [consistencyItems, setConsistencyItems] = useState<ConsistencyItem[]>([])
   const [selectedAccountId, setSelectedAccountId] = useState<number | null>(null)
   const [trades, setTrades] = useState<Trade[]>([])
   const [error, setError] = useState<string | null>(null)
@@ -55,9 +64,11 @@ export function DashboardView(): JSX.Element {
         setAccounts(list)
         if (list.length > 0) setSelectedAccountId(list[0].id)
 
-        const items = await Promise.all(
-          list.map(async (a) => {
-            const status = await flowStateApi.ruleStatus.get(a.id)
+        const statuses = await Promise.all(
+          list.map(async (a) => ({ account: a, status: await flowStateApi.ruleStatus.get(a.id) }))
+        )
+        setStripItems(
+          statuses.map(({ account: a, status }) => {
             const { state, limitLabel } = bindingConstraint(status)
             return {
               label: `${a.firmName} ${a.accountName}`,
@@ -67,7 +78,21 @@ export function DashboardView(): JSX.Element {
             } as StripItem
           })
         )
-        setStripItems(items)
+        setConsistencyItems(
+          statuses
+            .filter(
+              ({ status }) =>
+                status.consistencyState !== 'n/a' &&
+                status.consistencyPercent !== null &&
+                status.bestDayProfitPercent !== null
+            )
+            .map(({ account: a, status }) => ({
+              label: `${a.firmName} ${a.accountName}`,
+              bestDayProfitPercent: status.bestDayProfitPercent as number,
+              consistencyPercent: status.consistencyPercent as number,
+              state: status.consistencyState as RuleState
+            }))
+        )
       } catch (e) {
         setError(`Could not load rule status: ${e instanceof Error ? e.message : String(e)}`)
       }
@@ -105,6 +130,19 @@ export function DashboardView(): JSX.Element {
       {selectedAccount && (
         <div style={{ marginTop: 24 }}>
           <EquityCurve startingBalance={selectedAccount.startingBalance} trades={trades} />
+        </div>
+      )}
+      {consistencyItems.length > 0 && (
+        <div className="dashboard-consistency-row">
+          {consistencyItems.map((item) => (
+            <ConsistencyPanel
+              key={item.label}
+              firmLabel={item.label}
+              bestDayProfitPercent={item.bestDayProfitPercent}
+              consistencyPercent={item.consistencyPercent}
+              state={item.state}
+            />
+          ))}
         </div>
       )}
     </div>

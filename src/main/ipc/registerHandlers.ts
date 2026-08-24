@@ -23,6 +23,12 @@ import {
   updateJournalTemplate,
   deleteJournalTemplate
 } from '../db/journalTemplates.repo'
+import {
+  createPlaybook,
+  listPlaybooks,
+  updatePlaybook,
+  deletePlaybook
+} from '../db/playbooks.repo'
 import type {
   NewAccount,
   NewRuleProfile,
@@ -30,7 +36,9 @@ import type {
   NewJournalEntry,
   NewJournalTemplate,
   UpdateJournalTemplate,
-  UpdateTradeReflection
+  UpdateTradeReflection,
+  NewPlaybook,
+  UpdatePlaybook
 } from '../../shared/types'
 // Local calendar day, not UTC. Shared with the rule engine so the two can never drift.
 import { toLocalDateString } from '../../shared/date'
@@ -84,4 +92,11 @@ export function registerHandlers(db: Database.Database): void {
     updateJournalTemplate(db, id, updates)
   )
   ipcMain.handle('journalTemplates:delete', (_e, id: number) => deleteJournalTemplate(db, id))
+
+  ipcMain.handle('playbooks:list', () => listPlaybooks(db))
+  ipcMain.handle('playbooks:create', (_e, playbook: NewPlaybook) => createPlaybook(db, playbook))
+  ipcMain.handle('playbooks:update', (_e, id: number, updates: UpdatePlaybook) =>
+    updatePlaybook(db, id, updates)
+  )
+  ipcMain.handle('playbooks:delete', (_e, id: number) => deletePlaybook(db, id))
 }

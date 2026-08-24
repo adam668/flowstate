@@ -81,6 +81,10 @@ describe('registerHandlers', () => {
         'journalTemplates:delete',
         'journalTemplates:list',
         'journalTemplates:update',
+        'playbooks:create',
+        'playbooks:delete',
+        'playbooks:list',
+        'playbooks:update',
         'ruleProfiles:create',
         'ruleStatus:get',
         'tags:getOrCreate',
@@ -113,7 +117,8 @@ describe('registerHandlers', () => {
       lessonsLearned: null,
       brainstorm: null,
       screenshotPaths: [],
-      tagIds: []
+      tagIds: [],
+      playbookId: null
     })
 
     const status = invoke<RuleStatus>('ruleStatus:get', accountId)
@@ -142,7 +147,8 @@ describe('registerHandlers', () => {
       lessonsLearned: null,
       brainstorm: null,
       screenshotPaths: [],
-      tagIds: []
+      tagIds: [],
+      playbookId: null
     })
 
     const status = invoke<RuleStatus>('ruleStatus:get', accountId)

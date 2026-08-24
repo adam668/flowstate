@@ -1,6 +1,11 @@
 import { describe, it, expect } from 'vitest'
-import { computeWinRateByTag, computeWinRateByHour, computeRMultipleDistribution } from './analytics'
-import type { Trade, Tag } from './types'
+import {
+  computeWinRateByTag,
+  computeWinRateByHour,
+  computeRMultipleDistribution,
+  computeWinRateByPlaybook
+} from './analytics'
+import type { Trade, Tag, Playbook } from './types'
 
 function makeTrade(overrides: Partial<Trade>): Trade {
   return {
@@ -21,6 +26,7 @@ function makeTrade(overrides: Partial<Trade>): Trade {
     brainstorm: null,
     screenshotPaths: [],
     tagIds: [],
+    playbookId: null,
     ...overrides
   }
 }
@@ -98,6 +104,37 @@ describe('computeWinRateByTag', () => {
     const trades: Trade[] = [makeTrade({ id: 1, pnl: 10, tagIds: [] })]
 
     const result = computeWinRateByTag(trades, tags)
+
+    expect(result).toEqual([])
+  })
+})
+
+describe('computeWinRateByPlaybook', () => {
+  it('computes win rate per playbook from linked trades', () => {
+    const playbooks: Playbook[] = [
+      { id: 1, name: 'ORB Breakout', criteria: null, createdAt: '' },
+      { id: 2, name: 'Fade the Open', criteria: null, createdAt: '' }
+    ]
+    const trades: Trade[] = [
+      makeTrade({ id: 1, pnl: 10, playbookId: 1 }),
+      makeTrade({ id: 2, pnl: -5, playbookId: 1 }),
+      makeTrade({ id: 3, pnl: 20, playbookId: 2 })
+    ]
+
+    const result = computeWinRateByPlaybook(trades, playbooks)
+
+    expect(result).toContainEqual({ playbookName: 'ORB Breakout', wins: 1, losses: 1, winRate: 0.5 })
+    expect(result).toContainEqual({ playbookName: 'Fade the Open', wins: 1, losses: 0, winRate: 1 })
+  })
+
+  it('excludes trades with no playbook and playbooks with no trades', () => {
+    const playbooks: Playbook[] = [
+      { id: 1, name: 'ORB Breakout', criteria: null, createdAt: '' },
+      { id: 2, name: 'Unused', criteria: null, createdAt: '' }
+    ]
+    const trades: Trade[] = [makeTrade({ id: 1, pnl: 10, playbookId: null })]
+
+    const result = computeWinRateByPlaybook(trades, playbooks)
 
     expect(result).toEqual([])
   })

@@ -42,7 +42,8 @@ function trade(pnl: number, entryTime: string): Trade {
     lessonsLearned: null,
     brainstorm: null,
     screenshotPaths: [],
-    tagIds: []
+    tagIds: [],
+    playbookId: null
   }
 }
 
@@ -155,7 +156,8 @@ describe('computeRuleStatus', () => {
         lessonsLearned: null,
         brainstorm: null,
         screenshotPaths: [],
-        tagIds: []
+        tagIds: [],
+        playbookId: null
       }
     ]
     // Compute the expected exit date in local timezone
@@ -201,5 +203,46 @@ describe('computeRuleStatus', () => {
     const status = computeRuleStatus(account, ruleProfile, [otherAccountTrade, myTrade], '2026-08-11')
     expect(status.todayPnl).toBe(1000) // only myTrade counts
     expect(status.currentBalance).toBe(151000) // only myTrade affects balance
+  })
+
+  it('reports consistencyState as n/a when the profile has no consistency limit', () => {
+    const status = computeRuleStatus(account, ruleProfile, [], '2026-08-11')
+    expect(status.consistencyState).toBe('n/a')
+    expect(status.bestDayProfitPercent).toBeNull()
+  })
+
+  it('reports consistencyState as n/a when total profit is not positive', () => {
+    const profile: RuleProfile = { ...ruleProfile, consistencyPercent: 40 }
+    const trades = [trade(-1000, '2026-08-10T14:00:00Z'), trade(500, '2026-08-11T09:00:00Z')]
+    const status = computeRuleStatus(account, profile, trades, '2026-08-11')
+    expect(status.consistencyState).toBe('n/a')
+    expect(status.bestDayProfitPercent).toBeNull()
+  })
+
+  it('flags a consistency violation when one day accounts for too much of total profit', () => {
+    const profile: RuleProfile = { ...ruleProfile, consistencyPercent: 40 }
+    const trades = [trade(3000, '2026-08-10T14:00:00Z'), trade(2000, '2026-08-11T09:00:00Z')]
+    const status = computeRuleStatus(account, profile, trades, '2026-08-11')
+    expect(status.bestDayProfitPercent).toBe(60) // 3000 / 5000 * 100
+    expect(status.consistencyState).toBe('violation')
+  })
+
+  it('reports a clean consistency state when profit is evenly spread', () => {
+    const profile: RuleProfile = { ...ruleProfile, consistencyPercent: 40 }
+    const trades = [
+      trade(1200, '2026-08-08T09:00:00Z'),
+      trade(1000, '2026-08-09T09:00:00Z'),
+      trade(1000, '2026-08-10T09:00:00Z'),
+      trade(800, '2026-08-11T09:00:00Z')
+    ]
+    const status = computeRuleStatus(account, profile, trades, '2026-08-11')
+    expect(status.bestDayProfitPercent).toBe(30) // 1200 / 4000 * 100, well clear of the 40% limit
+    expect(status.consistencyState).toBe('clean')
+  })
+
+  it('carries the profile consistencyPercent through to the status', () => {
+    const profile: RuleProfile = { ...ruleProfile, consistencyPercent: 40 }
+    const status = computeRuleStatus(account, profile, [], '2026-08-11')
+    expect(status.consistencyPercent).toBe(40)
   })
 })

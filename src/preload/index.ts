@@ -14,7 +14,10 @@ import type {
   JournalTemplate,
   NewJournalTemplate,
   UpdateJournalTemplate,
-  UpdateTradeReflection
+  UpdateTradeReflection,
+  Playbook,
+  NewPlaybook,
+  UpdatePlaybook
 } from '../shared/types'
 
 // Every method carries an explicit return type: `ipcRenderer.invoke` returns
@@ -78,6 +81,14 @@ const api = {
   media: {
     saveImage: (base64Data: string, mimeType: string): Promise<string> =>
       ipcRenderer.invoke('media:saveImage', base64Data, mimeType)
+  },
+  playbooks: {
+    list: (): Promise<Playbook[]> => ipcRenderer.invoke('playbooks:list'),
+    create: (playbook: NewPlaybook): Promise<Playbook> =>
+      ipcRenderer.invoke('playbooks:create', playbook),
+    update: (id: number, updates: UpdatePlaybook): Promise<Playbook> =>
+      ipcRenderer.invoke('playbooks:update', id, updates),
+    delete: (id: number): Promise<void> => ipcRenderer.invoke('playbooks:delete', id)
   }
 }
 

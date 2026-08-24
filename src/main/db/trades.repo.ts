@@ -23,16 +23,17 @@ function toTrade(db: Database.Database, row: any): Trade {
     lessonsLearned: row.lessons_learned,
     brainstorm: row.brainstorm,
     screenshotPaths: JSON.parse(row.screenshot_paths),
-    tagIds: tagRows.map((t) => t.tag_id)
+    tagIds: tagRows.map((t) => t.tag_id),
+    playbookId: row.playbook_id
   }
 }
 
 export function createTrade(db: Database.Database, trade: NewTrade): Trade {
   const insertTrade = db.prepare(`
     INSERT INTO trades
-      (account_id, instrument, side, entry_price, exit_price, entry_time, exit_time, size, pnl, r_multiple, setup_thesis, execution_notes, lessons_learned, brainstorm, screenshot_paths)
+      (account_id, instrument, side, entry_price, exit_price, entry_time, exit_time, size, pnl, r_multiple, setup_thesis, execution_notes, lessons_learned, brainstorm, screenshot_paths, playbook_id)
     VALUES
-      (@accountId, @instrument, @side, @entryPrice, @exitPrice, @entryTime, @exitTime, @size, @pnl, @rMultiple, @setupThesis, @executionNotes, @lessonsLearned, @brainstorm, @screenshotPaths)
+      (@accountId, @instrument, @side, @entryPrice, @exitPrice, @entryTime, @exitTime, @size, @pnl, @rMultiple, @setupThesis, @executionNotes, @lessonsLearned, @brainstorm, @screenshotPaths, @playbookId)
   `)
 
   const insertTagLink = db.prepare('INSERT INTO trade_tags (trade_id, tag_id) VALUES (?, ?)')
@@ -53,7 +54,8 @@ export function createTrade(db: Database.Database, trade: NewTrade): Trade {
       executionNotes: t.executionNotes,
       lessonsLearned: t.lessonsLearned,
       brainstorm: t.brainstorm,
-      screenshotPaths: JSON.stringify(t.screenshotPaths)
+      screenshotPaths: JSON.stringify(t.screenshotPaths),
+      playbookId: t.playbookId
     })
     const tradeId = Number(info.lastInsertRowid)
     for (const tagId of t.tagIds) {
@@ -103,14 +105,16 @@ export function updateTradeReflection(
   const lessonsLearned =
     updates.lessonsLearned !== undefined ? updates.lessonsLearned : existing.lessons_learned
   const brainstorm = updates.brainstorm !== undefined ? updates.brainstorm : existing.brainstorm
+  const playbookId =
+    updates.playbookId !== undefined ? updates.playbookId : existing.playbook_id
 
   db.prepare(
     `
     UPDATE trades
-    SET pnl = ?, r_multiple = ?, setup_thesis = ?, execution_notes = ?, lessons_learned = ?, brainstorm = ?
+    SET pnl = ?, r_multiple = ?, setup_thesis = ?, execution_notes = ?, lessons_learned = ?, brainstorm = ?, playbook_id = ?
     WHERE id = ?
   `
-  ).run(pnl, rMultiple, setupThesis, executionNotes, lessonsLearned, brainstorm, id)
+  ).run(pnl, rMultiple, setupThesis, executionNotes, lessonsLearned, brainstorm, playbookId, id)
 
   return toTrade(db, db.prepare('SELECT * FROM trades WHERE id = ?').get(id))
 }

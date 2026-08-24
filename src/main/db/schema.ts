@@ -70,6 +70,13 @@ export function applySchema(db: Database.Database): void {
       content TEXT NOT NULL,
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
+
+    CREATE TABLE IF NOT EXISTS playbooks (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      criteria TEXT,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
   `)
 
   migrateTradesTable(db)
@@ -83,7 +90,8 @@ function migrateTradesTable(db: Database.Database): void {
     ['setup_thesis', 'TEXT'],
     ['execution_notes', 'TEXT'],
     ['lessons_learned', 'TEXT'],
-    ['brainstorm', 'TEXT']
+    ['brainstorm', 'TEXT'],
+    ['playbook_id', 'INTEGER REFERENCES playbooks(id)']
   ]
   for (const [name, type] of newColumns) {
     if (!columnNames.has(name)) {

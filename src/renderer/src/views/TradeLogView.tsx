@@ -3,12 +3,13 @@ import { flowStateApi } from '../api/client'
 import { TradeQuickAddForm } from './TradeQuickAddForm'
 import { TradeRow } from './TradeRow'
 import { ErrorBanner } from '../components/ErrorBanner'
-import type { Account, Trade } from '../../../shared/types'
+import type { Account, Trade, Playbook } from '../../../shared/types'
 
 export function TradeLogView(): JSX.Element {
   const [accounts, setAccounts] = useState<Account[]>([])
   const [selectedAccountId, setSelectedAccountId] = useState<number | null>(null)
   const [trades, setTrades] = useState<Trade[]>([])
+  const [playbooks, setPlaybooks] = useState<Playbook[]>([])
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -23,6 +24,12 @@ export function TradeLogView(): JSX.Element {
       }
     }
     loadAccounts()
+    flowStateApi.playbooks
+      .list()
+      .then(setPlaybooks)
+      .catch((e: unknown) => {
+        setError(`Could not load playbooks: ${e instanceof Error ? e.message : String(e)}`)
+      })
   }, [])
 
   async function refreshTrades(accountId: number): Promise<void> {
@@ -85,6 +92,7 @@ export function TradeLogView(): JSX.Element {
             <TradeRow
               key={t.id}
               trade={t}
+              playbooks={playbooks}
               onChanged={() => selectedAccountId !== null && refreshTrades(selectedAccountId)}
               onError={setError}
             />

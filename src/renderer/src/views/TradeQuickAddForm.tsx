@@ -60,7 +60,8 @@ export function TradeQuickAddForm({ accountId, onCreated }: TradeQuickAddFormPro
         lessonsLearned: null,
         brainstorm: null,
         screenshotPaths: [],
-        tagIds: []
+        tagIds: [],
+        playbookId: null
       })
       setInstrument('')
       setEntryPrice('')
