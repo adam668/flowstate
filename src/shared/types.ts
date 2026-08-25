@@ -61,6 +61,7 @@ export interface UpdateTradeReflection {
   lessonsLearned?: string | null
   brainstorm?: string | null
   playbookId?: number | null
+  screenshotPaths?: string[]
 }
 
 export interface RuleStatus {
