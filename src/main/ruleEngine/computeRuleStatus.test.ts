@@ -21,7 +21,7 @@ const ruleProfile: RuleProfile = {
   dailyLossLimit: 2500,
   consistencyPercent: null,
   minTradingDays: null,
-  profitTarget: 9000
+  profitTarget: null
 }
 
 function trade(pnl: number, entryTime: string): Trade {
@@ -244,5 +244,55 @@ describe('computeRuleStatus', () => {
     const profile: RuleProfile = { ...ruleProfile, consistencyPercent: 40 }
     const status = computeRuleStatus(account, profile, [], '2026-08-11')
     expect(status.consistencyPercent).toBe(40)
+  })
+
+  it('reports profitTargetPercent as null when the profile has no profit target', () => {
+    const status = computeRuleStatus(account, ruleProfile, [], '2026-08-11')
+    expect(status.profitTargetPercent).toBeNull()
+  })
+
+  it('computes profitTargetPercent as a percentage of net profit against the target', () => {
+    const profile: RuleProfile = { ...ruleProfile, profitTarget: 9000 }
+    const trades = [trade(4500, '2026-08-10T14:00:00Z')]
+    const status = computeRuleStatus(account, profile, trades, '2026-08-11')
+    expect(status.profitTargetPercent).toBe(50) // 4500 / 9000 * 100
+  })
+
+  it('clamps profitTargetPercent to zero when the account is in a net loss', () => {
+    const profile: RuleProfile = { ...ruleProfile, profitTarget: 9000 }
+    const trades = [trade(-1000, '2026-08-10T14:00:00Z')]
+    const status = computeRuleStatus(account, profile, trades, '2026-08-11')
+    expect(status.profitTargetPercent).toBe(0)
+  })
+
+  it('reports tradingDaysCount as the number of distinct local trading days', () => {
+    const trades = [
+      trade(100, '2026-08-09T14:00:00Z'),
+      trade(-50, '2026-08-09T15:00:00Z'), // same day as above
+      trade(200, '2026-08-10T14:00:00Z')
+    ]
+    const status = computeRuleStatus(account, ruleProfile, trades, '2026-08-11')
+    expect(status.tradingDaysCount).toBe(2)
+  })
+
+  it('reports tradingDaysRemaining as null when the profile has no minTradingDays', () => {
+    const status = computeRuleStatus(account, ruleProfile, [], '2026-08-11')
+    expect(status.tradingDaysRemaining).toBeNull()
+  })
+
+  it('computes tradingDaysRemaining against minTradingDays, clamped to zero', () => {
+    const profile: RuleProfile = { ...ruleProfile, minTradingDays: 5 }
+    const trades = [
+      trade(100, '2026-08-08T14:00:00Z'),
+      trade(100, '2026-08-09T14:00:00Z'),
+      trade(100, '2026-08-10T14:00:00Z')
+    ]
+    const status = computeRuleStatus(account, profile, trades, '2026-08-11')
+    expect(status.tradingDaysCount).toBe(3)
+    expect(status.tradingDaysRemaining).toBe(2) // 5 - 3
+
+    const profileMet: RuleProfile = { ...ruleProfile, minTradingDays: 2 }
+    const statusMet = computeRuleStatus(account, profileMet, trades, '2026-08-11')
+    expect(statusMet.tradingDaysRemaining).toBe(0) // already exceeded, clamped not negative
   })
 })

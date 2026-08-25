@@ -54,6 +54,17 @@ export function computeRuleStatus(
     )
   }
 
+  let profitTargetPercent: number | null = null
+  if (ruleProfile.profitTarget !== null) {
+    profitTargetPercent = Math.max(0, (totalProfit / ruleProfile.profitTarget) * 100)
+  }
+
+  const tradingDaysCount = computeDayAggregates(accountTrades).length
+  const tradingDaysRemaining =
+    ruleProfile.minTradingDays !== null
+      ? Math.max(0, ruleProfile.minTradingDays - tradingDaysCount)
+      : null
+
   return {
     accountId: account.id,
     highWaterMark,
@@ -70,6 +81,9 @@ export function computeRuleStatus(
     dailyLossState,
     consistencyPercent: ruleProfile.consistencyPercent,
     bestDayProfitPercent,
-    consistencyState
+    consistencyState,
+    profitTargetPercent,
+    tradingDaysCount,
+    tradingDaysRemaining
   }
 }

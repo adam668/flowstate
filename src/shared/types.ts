@@ -80,6 +80,9 @@ export interface RuleStatus {
   consistencyPercent: number | null
   bestDayProfitPercent: number | null
   consistencyState: RuleState | 'n/a'
+  profitTargetPercent: number | null
+  tradingDaysCount: number
+  tradingDaysRemaining: number | null
 }
 
 export type NewAccount = Omit<Account, 'id' | 'createdAt'>
