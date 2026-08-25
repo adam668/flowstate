@@ -14,6 +14,8 @@ export function GoalsPanel({
   const showProfitTarget = profitTargetPercent !== null
   const showTradingDays = tradingDaysRemaining !== null
   const tradingDaysTarget = tradingDaysCount + (tradingDaysRemaining ?? 0)
+  const tradingDaysFillPercent =
+    tradingDaysTarget > 0 ? Math.min(100, (tradingDaysCount / tradingDaysTarget) * 100) : 100
 
   return (
     <div className="goals-card">
@@ -43,7 +45,7 @@ export function GoalsPanel({
           <div className="goals-bar-track">
             <div
               className="goals-bar-fill"
-              style={{ width: `${Math.min(100, (tradingDaysCount / tradingDaysTarget) * 100)}%` }}
+              style={{ width: `${tradingDaysFillPercent}%` }}
             />
           </div>
           {(tradingDaysRemaining as number) > 0 && (

@@ -52,4 +52,18 @@ describe('GoalsPanel', () => {
     )
     expect(screen.queryByText('Trading Days')).not.toBeInTheDocument()
   })
+
+  it('renders a full (not NaN) trading-days bar when both count and remaining are zero', () => {
+    const { container } = render(
+      <GoalsPanel
+        firmLabel="Apex"
+        profitTargetPercent={null}
+        tradingDaysCount={0}
+        tradingDaysRemaining={0}
+      />
+    )
+    const fill = container.querySelector('.goals-bar-fill')
+    expect(fill).not.toBeNull()
+    expect((fill as HTMLElement).style.width).toBe('100%')
+  })
 })
