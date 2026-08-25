@@ -105,4 +105,12 @@ describe('TradeLogView filtering', () => {
 
     expect(await screen.findByText('No trades match these filters.')).toBeInTheDocument()
   })
+
+  it('shows a "No trades yet." message when the account has zero trades, not the filter-empty message', async () => {
+    listForAccountMock.mockResolvedValue([])
+    render(<TradeLogView />)
+
+    expect(await screen.findByText('No trades yet.')).toBeInTheDocument()
+    expect(screen.queryByText('No trades match these filters.')).not.toBeInTheDocument()
+  })
 })

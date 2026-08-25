@@ -265,6 +265,12 @@ describe('computeRuleStatus', () => {
     expect(status.profitTargetPercent).toBe(0)
   })
 
+  it('reports profitTargetPercent as null when profitTarget is zero, not Infinity', () => {
+    const profile: RuleProfile = { ...ruleProfile, profitTarget: 0 }
+    const status = computeRuleStatus(account, profile, [], '2026-08-11')
+    expect(status.profitTargetPercent).toBeNull()
+  })
+
   it('reports tradingDaysCount as the number of distinct local trading days', () => {
     const trades = [
       trade(100, '2026-08-09T14:00:00Z'),

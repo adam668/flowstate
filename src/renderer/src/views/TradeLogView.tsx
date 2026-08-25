@@ -137,6 +137,9 @@ export function TradeLogView(): JSX.Element {
           value={filters.dateTo ?? ''}
           onChange={(e) => setFilters((f) => ({ ...f, dateTo: e.target.value || null }))}
         />
+        {/* Reference check, not deep-equality: any setFilters call creates a new object,
+            so the button appears the instant a filter is touched — even if every field
+            is later manually blanked back to the empty state. */}
         {filters !== EMPTY_TRADE_FILTERS && (
           <button type="button" onClick={() => setFilters(EMPTY_TRADE_FILTERS)}>
             Clear filters
@@ -144,7 +147,9 @@ export function TradeLogView(): JSX.Element {
         )}
       </div>
 
-      {filteredTrades.length === 0 ? (
+      {trades.length === 0 ? (
+        <p className="trade-filter-empty">No trades yet.</p>
+      ) : filteredTrades.length === 0 ? (
         <p className="trade-filter-empty">No trades match these filters.</p>
       ) : (
         <table className="trade-table">

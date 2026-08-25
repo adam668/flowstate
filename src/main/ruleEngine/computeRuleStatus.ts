@@ -42,11 +42,13 @@ export function computeRuleStatus(
     dailyLossState = stateFromRemaining(dailyLossRemaining, ruleProfile.dailyLossLimit)
   }
 
+  const dayAggregates = computeDayAggregates(accountTrades)
+
   const totalProfit = runningBalance - account.startingBalance
   let bestDayProfitPercent: number | null = null
   let consistencyState: RuleState | 'n/a' = 'n/a'
   if (ruleProfile.consistencyPercent !== null && totalProfit > 0) {
-    const bestDayPnl = Math.max(0, ...computeDayAggregates(accountTrades).map((d) => d.pnl))
+    const bestDayPnl = Math.max(0, ...dayAggregates.map((d) => d.pnl))
     bestDayProfitPercent = (bestDayPnl / totalProfit) * 100
     consistencyState = stateFromRemaining(
       ruleProfile.consistencyPercent - bestDayProfitPercent,
@@ -55,11 +57,11 @@ export function computeRuleStatus(
   }
 
   let profitTargetPercent: number | null = null
-  if (ruleProfile.profitTarget !== null) {
+  if (ruleProfile.profitTarget !== null && ruleProfile.profitTarget > 0) {
     profitTargetPercent = Math.max(0, (totalProfit / ruleProfile.profitTarget) * 100)
   }
 
-  const tradingDaysCount = computeDayAggregates(accountTrades).length
+  const tradingDaysCount = dayAggregates.length
   const tradingDaysRemaining =
     ruleProfile.minTradingDays !== null
       ? Math.max(0, ruleProfile.minTradingDays - tradingDaysCount)
