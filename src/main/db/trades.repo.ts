@@ -107,14 +107,28 @@ export function updateTradeReflection(
   const brainstorm = updates.brainstorm !== undefined ? updates.brainstorm : existing.brainstorm
   const playbookId =
     updates.playbookId !== undefined ? updates.playbookId : existing.playbook_id
+  const screenshotPaths =
+    updates.screenshotPaths !== undefined
+      ? JSON.stringify(updates.screenshotPaths)
+      : existing.screenshot_paths
 
   db.prepare(
     `
     UPDATE trades
-    SET pnl = ?, r_multiple = ?, setup_thesis = ?, execution_notes = ?, lessons_learned = ?, brainstorm = ?, playbook_id = ?
+    SET pnl = ?, r_multiple = ?, setup_thesis = ?, execution_notes = ?, lessons_learned = ?, brainstorm = ?, playbook_id = ?, screenshot_paths = ?
     WHERE id = ?
   `
-  ).run(pnl, rMultiple, setupThesis, executionNotes, lessonsLearned, brainstorm, playbookId, id)
+  ).run(
+    pnl,
+    rMultiple,
+    setupThesis,
+    executionNotes,
+    lessonsLearned,
+    brainstorm,
+    playbookId,
+    screenshotPaths,
+    id
+  )
 
   return toTrade(db, db.prepare('SELECT * FROM trades WHERE id = ?').get(id))
 }

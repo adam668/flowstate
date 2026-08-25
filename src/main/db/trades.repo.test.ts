@@ -178,4 +178,33 @@ describe('trades.repo', () => {
     expect(updated.rMultiple).toBe(2.5)
     expect(updated.pnl).toBe(20)
   })
+
+  it('updates screenshotPaths independently of the other reflection fields', () => {
+    const trade = createTrade(db, {
+      accountId,
+      instrument: 'ES',
+      side: 'long',
+      entryPrice: 5000,
+      exitPrice: 5010,
+      entryTime: '2026-08-11T13:35:00Z',
+      exitTime: '2026-08-11T13:50:00Z',
+      size: 2,
+      pnl: 20,
+      rMultiple: null,
+      setupThesis: null,
+      executionNotes: null,
+      lessonsLearned: null,
+      brainstorm: null,
+      screenshotPaths: [],
+      tagIds: [],
+      playbookId: null
+    })
+
+    const updated = updateTradeReflection(db, trade.id, {
+      screenshotPaths: ['flowstate-media://a.png', 'flowstate-media://b.png']
+    })
+
+    expect(updated.screenshotPaths).toEqual(['flowstate-media://a.png', 'flowstate-media://b.png'])
+    expect(updated.pnl).toBe(20)
+  })
 })

@@ -3,6 +3,7 @@ import { flowStateApi } from '../api/client'
 import { RuleStatusStrip, StripItem } from '../components/RuleStatusStrip'
 import { EquityCurve } from '../components/EquityCurve'
 import { ConsistencyPanel } from '../components/ConsistencyPanel'
+import { GoalsPanel } from '../components/GoalsPanel'
 import { ErrorBanner } from '../components/ErrorBanner'
 import type { Account, RuleState, RuleStatus, Trade } from '../../../shared/types'
 
@@ -48,10 +49,18 @@ interface ConsistencyItem {
   state: RuleState
 }
 
+interface GoalsItem {
+  label: string
+  profitTargetPercent: number | null
+  tradingDaysCount: number
+  tradingDaysRemaining: number | null
+}
+
 export function DashboardView(): JSX.Element {
   const [accounts, setAccounts] = useState<Account[]>([])
   const [stripItems, setStripItems] = useState<StripItem[]>([])
   const [consistencyItems, setConsistencyItems] = useState<ConsistencyItem[]>([])
+  const [goalsItems, setGoalsItems] = useState<GoalsItem[]>([])
   const [selectedAccountId, setSelectedAccountId] = useState<number | null>(null)
   const [trades, setTrades] = useState<Trade[]>([])
   const [error, setError] = useState<string | null>(null)
@@ -91,6 +100,18 @@ export function DashboardView(): JSX.Element {
               bestDayProfitPercent: status.bestDayProfitPercent as number,
               consistencyPercent: status.consistencyPercent as number,
               state: status.consistencyState as RuleState
+            }))
+        )
+        setGoalsItems(
+          statuses
+            .filter(
+              ({ status }) => status.profitTargetPercent !== null || status.tradingDaysRemaining !== null
+            )
+            .map(({ account: a, status }) => ({
+              label: `${a.firmName} ${a.accountName}`,
+              profitTargetPercent: status.profitTargetPercent,
+              tradingDaysCount: status.tradingDaysCount,
+              tradingDaysRemaining: status.tradingDaysRemaining
             }))
         )
       } catch (e) {
@@ -141,6 +162,19 @@ export function DashboardView(): JSX.Element {
               bestDayProfitPercent={item.bestDayProfitPercent}
               consistencyPercent={item.consistencyPercent}
               state={item.state}
+            />
+          ))}
+        </div>
+      )}
+      {goalsItems.length > 0 && (
+        <div className="dashboard-consistency-row">
+          {goalsItems.map((item) => (
+            <GoalsPanel
+              key={item.label}
+              firmLabel={item.label}
+              profitTargetPercent={item.profitTargetPercent}
+              tradingDaysCount={item.tradingDaysCount}
+              tradingDaysRemaining={item.tradingDaysRemaining}
             />
           ))}
         </div>

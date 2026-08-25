@@ -20,6 +20,7 @@ export function TradeRow({ trade, playbooks, onChanged, onError }: TradeRowProps
   const [playbookId, setPlaybookId] = useState(
     trade.playbookId === null ? '' : String(trade.playbookId)
   )
+  const [screenshotPaths, setScreenshotPaths] = useState<string[]>(trade.screenshotPaths)
 
   async function handleSave(): Promise<void> {
     const parsedPnl = Number(pnl)
@@ -32,7 +33,8 @@ export function TradeRow({ trade, playbooks, onChanged, onError }: TradeRowProps
       executionNotes: executionNotes.trim() || null,
       lessonsLearned: lessonsLearned.trim() || null,
       brainstorm: brainstorm.trim() || null,
-      playbookId: playbookId === '' ? null : Number(playbookId)
+      playbookId: playbookId === '' ? null : Number(playbookId),
+      screenshotPaths
     }
     try {
       await flowStateApi.trades.update(trade.id, updates)
@@ -40,6 +42,29 @@ export function TradeRow({ trade, playbooks, onChanged, onError }: TradeRowProps
     } catch (err) {
       onError(`Could not save trade notes: ${err instanceof Error ? err.message : String(err)}`)
     }
+  }
+
+  async function handleAddScreenshot(e: React.ChangeEvent<HTMLInputElement>): Promise<void> {
+    const files = e.target.files
+    if (!files || files.length === 0) return
+    try {
+      for (const file of Array.from(files)) {
+        const buffer = await file.arrayBuffer()
+        let binary = ''
+        const bytes = new Uint8Array(buffer)
+        for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i])
+        const base64 = btoa(binary)
+        const url = await flowStateApi.media.saveImage(base64, file.type)
+        setScreenshotPaths((paths) => [...paths, url])
+      }
+    } catch (err) {
+      onError(`Could not upload screenshot: ${err instanceof Error ? err.message : String(err)}`)
+    }
+    e.target.value = ''
+  }
+
+  function handleRemoveScreenshot(index: number): void {
+    setScreenshotPaths((paths) => paths.filter((_, i) => i !== index))
   }
 
   async function handleDelete(): Promise<void> {
@@ -165,6 +190,36 @@ export function TradeRow({ trade, playbooks, onChanged, onError }: TradeRowProps
                     </option>
                   ))}
                 </select>
+              </div>
+              <div className="field">
+                <span className="field-label">Screenshots</span>
+                <div className="trade-screenshots">
+                  {screenshotPaths.map((path, i) => (
+                    <div className="trade-screenshot" key={path}>
+                      <img src={path} alt={`Trade screenshot ${i + 1}`} />
+                      <button
+                        type="button"
+                        className="trade-screenshot-remove"
+                        onClick={() => handleRemoveScreenshot(i)}
+                        aria-label={`Remove screenshot ${i + 1}`}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                  <label className="trade-screenshot-add" htmlFor={`screenshot-input-${trade.id}`}>
+                    + Add screenshot
+                  </label>
+                  <input
+                    id={`screenshot-input-${trade.id}`}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    aria-label="Add screenshot"
+                    className="trade-screenshot-input"
+                    onChange={(e) => void handleAddScreenshot(e)}
+                  />
+                </div>
               </div>
               <button type="button" className="trade-row-save" onClick={() => void handleSave()}>
                 Save notes

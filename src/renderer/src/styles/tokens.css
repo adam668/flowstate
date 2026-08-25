@@ -172,6 +172,13 @@ button.sidebar-item {
 .trade-table td.pos { color: var(--pnl-pos); }
 .trade-table td.neg { color: var(--pnl-neg); }
 
+.trade-filter-bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 16px; }
+.trade-filter-bar input, .trade-filter-bar select { background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; font-family: var(--sans); font-size: 13px; color: var(--text-primary); }
+.trade-filter-bar input:focus, .trade-filter-bar select:focus { outline: none; border-color: var(--accent); }
+.trade-filter-bar button { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; font-family: var(--sans); font-size: 12px; color: var(--text-secondary); cursor: pointer; }
+.trade-filter-bar button:hover { color: var(--accent); border-color: var(--accent); }
+.trade-filter-empty { margin-top: 20px; font-size: 13px; color: var(--text-muted); }
+
 .error-banner {
   display: flex;
   align-items: center;
@@ -340,6 +347,14 @@ button.sidebar-item {
 .trade-row-fields input:focus { outline: none; border-color: var(--accent); }
 .trade-row-fields select { background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; font-family: var(--sans); font-size: 13px; color: var(--text-primary); }
 .trade-row-fields select:focus { outline: none; border-color: var(--accent); }
+.trade-screenshots { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.trade-screenshot { position: relative; width: 64px; height: 64px; border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+.trade-screenshot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.trade-screenshot-remove { position: absolute; top: 2px; right: 2px; width: 18px; height: 18px; border-radius: 50%; background: rgba(11,13,15,0.75); border: none; color: var(--text-primary); font-size: 12px; line-height: 1; cursor: pointer; }
+.trade-screenshot-remove:hover { color: var(--accent); }
+.trade-screenshot-add { display: flex; align-items: center; justify-content: center; width: 64px; height: 64px; border: 1px dashed var(--border); border-radius: 6px; font-family: var(--sans); font-size: 11px; color: var(--text-muted); cursor: pointer; text-align: center; }
+.trade-screenshot-add:hover { color: var(--accent); border-color: var(--accent); }
+.trade-screenshot-input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .trade-row-save { grid-column: span 2; justify-self: start; background: var(--accent); border: none; border-radius: 6px; padding: 8px 16px; font-family: var(--sans); font-size: 13px; font-weight: 500; color: var(--bg); cursor: pointer; }
 
 .analytics-view { display: flex; flex-direction: column; gap: 16px; }
@@ -351,6 +366,13 @@ button.sidebar-item {
 .analytics-empty { margin: 0; font-size: 12px; color: var(--text-muted); }
 
 .dashboard-consistency-row { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 24px; }
+
+.goals-card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 20px 22px; max-width: 460px; display: flex; flex-direction: column; gap: 16px; }
+.goals-bar-row { display: flex; flex-direction: column; gap: 6px; }
+.goals-bar-label { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 11px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+.goals-bar-track { position: relative; height: 10px; background: var(--surface-3); border-radius: 4px; overflow: hidden; border: 1px solid var(--border-soft); }
+.goals-bar-fill { position: absolute; top: 0; bottom: 0; left: 0; background: var(--accent); }
+.goals-bar-sub { font-family: var(--mono); font-size: 10px; color: var(--text-muted); }
 
 .playbooks-view { display: flex; flex-direction: column; gap: 20px; }
 .playbooks-form { display: flex; flex-direction: column; gap: 12px; background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 16px; max-width: 460px; }

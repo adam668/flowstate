@@ -18,7 +18,10 @@ const base: RuleStatus = {
   dailyLossState: 'clean',
   consistencyPercent: null,
   bestDayProfitPercent: null,
-  consistencyState: 'n/a'
+  consistencyState: 'n/a',
+  profitTargetPercent: null,
+  tradingDaysCount: 0,
+  tradingDaysRemaining: null
 }
 
 describe('bindingConstraint', () => {

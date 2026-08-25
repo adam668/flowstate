@@ -3,12 +3,16 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 const deleteTradeMock = vi.fn()
 const updateTradeMock = vi.fn()
+const saveImageMock = vi.fn()
 
 vi.mock('../api/client', () => ({
   flowStateApi: {
     trades: {
       delete: (...a: unknown[]) => deleteTradeMock(...a),
       update: (...a: unknown[]) => updateTradeMock(...a)
+    },
+    media: {
+      saveImage: (...a: unknown[]) => saveImageMock(...a)
     }
   }
 }))
@@ -62,6 +66,7 @@ describe('TradeRow', () => {
     vi.clearAllMocks()
     deleteTradeMock.mockResolvedValue(undefined)
     updateTradeMock.mockResolvedValue(undefined)
+    saveImageMock.mockResolvedValue('flowstate-media://new-screenshot.png')
   })
 
   it('deletes the trade after the user confirms', async () => {
@@ -104,7 +109,8 @@ describe('TradeRow', () => {
         executionNotes: null,
         lessonsLearned: 'Sized too big',
         brainstorm: null,
-        playbookId: null
+        playbookId: null,
+        screenshotPaths: []
       })
     )
   })
@@ -127,7 +133,8 @@ describe('TradeRow', () => {
         executionNotes: null,
         lessonsLearned: null,
         brainstorm: null,
-        playbookId: null
+        playbookId: null,
+        screenshotPaths: []
       })
     )
   })
@@ -148,8 +155,48 @@ describe('TradeRow', () => {
         executionNotes: null,
         lessonsLearned: null,
         brainstorm: null,
-        playbookId: 2
+        playbookId: 2,
+        screenshotPaths: []
       })
+    )
+  })
+
+  it('uploads a screenshot and includes it in the save payload', async () => {
+    renderRow()
+
+    fireEvent.click(screen.getByLabelText('Expand trade details'))
+
+    const file = new File(['fake-image-bytes'], 'chart.png', { type: 'image/png' })
+    const fileInput = screen.getByLabelText('Add screenshot') as HTMLInputElement
+    await waitFor(() => fireEvent.change(fileInput, { target: { files: [file] } }))
+
+    await waitFor(() => expect(saveImageMock).toHaveBeenCalled())
+    expect(await screen.findByAltText('Trade screenshot 1')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByText('Save notes'))
+
+    await waitFor(() =>
+      expect(updateTradeMock).toHaveBeenCalledWith(
+        42,
+        expect.objectContaining({ screenshotPaths: ['flowstate-media://new-screenshot.png'] })
+      )
+    )
+  })
+
+  it('removes a screenshot from the in-memory list without deleting the file', async () => {
+    renderRow()
+
+    fireEvent.click(screen.getByLabelText('Expand trade details'))
+    const file = new File(['fake-image-bytes'], 'chart.png', { type: 'image/png' })
+    const fileInput = screen.getByLabelText('Add screenshot') as HTMLInputElement
+    await waitFor(() => fireEvent.change(fileInput, { target: { files: [file] } }))
+    await screen.findByAltText('Trade screenshot 1')
+
+    fireEvent.click(screen.getByLabelText('Remove screenshot 1'))
+    fireEvent.click(screen.getByText('Save notes'))
+
+    await waitFor(() =>
+      expect(updateTradeMock).toHaveBeenCalledWith(42, expect.objectContaining({ screenshotPaths: [] }))
     )
   })
 })
