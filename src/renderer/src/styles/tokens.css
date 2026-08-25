@@ -352,6 +352,13 @@ button.sidebar-item {
 
 .dashboard-consistency-row { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 24px; }
 
+.goals-card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 20px 22px; max-width: 460px; display: flex; flex-direction: column; gap: 16px; }
+.goals-bar-row { display: flex; flex-direction: column; gap: 6px; }
+.goals-bar-label { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 11px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+.goals-bar-track { position: relative; height: 10px; background: var(--surface-3); border-radius: 4px; overflow: hidden; border: 1px solid var(--border-soft); }
+.goals-bar-fill { position: absolute; top: 0; bottom: 0; left: 0; background: var(--accent); }
+.goals-bar-sub { font-family: var(--mono); font-size: 10px; color: var(--text-muted); }
+
 .playbooks-view { display: flex; flex-direction: column; gap: 20px; }
 .playbooks-form { display: flex; flex-direction: column; gap: 12px; background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 16px; max-width: 460px; }
 .playbooks-form .field { display: flex; flex-direction: column; gap: 6px; }
